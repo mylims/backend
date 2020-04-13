@@ -1,0 +1,47 @@
+{
+  "bsonType": "object",
+  "additionalProperties": false,
+  "required": ["_id", "uuid", "users", "title", "date"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "uuid": { "bsonType": "string" },
+    "owners": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" }
+    },
+    "tags": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" }
+    },
+    "title": { "bsonType": "string" },
+    "description": { "bsonType": "string" },
+    "creationDate": { "bsonType": "date" },
+    "updateDate": { "bsonType": "date" },
+    "status": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "kind": { "bsonType": "string" },
+          "date": { "bsonType": "date" }
+        }
+      }
+    },
+    "meta": { "bsonType": "object" },
+    "input": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" }
+    },
+    "output": {
+      "bsonType": "array",
+      "items": { "bsonType": "string" }
+    },
+    "components": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "description": "Elements describing the experiment"
+      }
+    }
+  }
+}

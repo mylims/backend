@@ -1,0 +1,39 @@
+{
+  "bsonType": "object",
+  "additionalProperties": false,
+  "required": ["_id", "uuid", "kind", "sampleUuid"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "uuid": { "bsonType": "string" },
+    "kind": { "bsonType": "string" },
+    "status": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "date": { "bsonType": "date" },
+          "kind": {
+            "bsonType": "string",
+            "enum": ["scheduled", "failed", "finished", "running"]
+          }
+        }
+      }
+    },
+    "instrument": {
+      "bsonType": "object",
+      "additionalProperties": true,
+      "required": ["name", "brand"],
+      "properties": {
+        "name": { "bsonType": "date" },
+        "brand": { "bsonType": "string" }
+      }
+    },
+    "startTime": { "bsonType": "date" },
+    "endTime": { "bsonType": "date" },
+    "content": {
+      "bsonType": "object",
+      "description": "fields required for the component to work"
+    },
+    "sampleUuid": { "bsonType": "string" }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "bsonType": "object",
+  "additionalProperties": false,
+  "required": ["_id", "uuid", "title"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "uuid": { "bsonType": "string" },
+    "title": { "bsonType": "string" },
+    "status": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "date": { "bsonType": "date" },
+          "kind": {
+            "bsonType": "string",
+            "enum": ["active", "archived", "deleted"]
+          }
+        }
+      }
+    },
+    "description": { "bsonType": "string" },
+    "comments": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "additionalProperties": true,
+        "required": ["date", "title", "description"],
+        "properties": {
+          "date": { "bsonType": "date" },
+          "title": { "bsonType": "string" },
+          "description": { "bsonType": "string" }
+        }
+      }
+    },
+    "summary": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "additionalProperties": true,
+        "required": ["name", "value", "units"],
+        "properties": {
+          "name": { "bsonType": "string" },
+          "value": { "bsonType": "string" },
+          "units": { "bsonType": "string" }
+        }
+      }
+    },
+    "components": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "description": "Elements describing the experiment"
+      }
+    }
+  }
+}

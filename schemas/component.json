@@ -1,0 +1,31 @@
+{
+  "bsonType": "object",
+  "additionalProperties": true,
+  "required": ["_id", "uuid", "name", "description", "content"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "uuid": { "bsonType": "string" },
+    "template": {
+      "bsonType": "string",
+      "description": "uuids of the template"
+    },
+    "content": {
+      "bsonType": "object",
+      "description": "fields required for the component to work"
+    },
+    "inputs": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "string",
+        "description": "uuids of the input samples"
+      }
+    },
+    "outputs": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "string",
+        "description": "uuids of the output samples"
+      }
+    }
+  }
+}

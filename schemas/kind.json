@@ -1,0 +1,17 @@
+{
+  "bsonType": "object",
+  "additionalProperties": false,
+  "required": ["_id", "name", "schema"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "name": { "bsonType": "string" },
+    "description": { "bsonType": "string" },
+    "schema": {
+      "bsonType": "object",
+      "additionalProperties": true,
+      "properties": {
+        "attachment": { "bsonType": "string" }
+      }
+    }
+  }
+}

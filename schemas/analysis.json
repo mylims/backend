@@ -1,0 +1,29 @@
+{
+  "bsonType": "object",
+  "additionalProperties": true,
+  "required": ["_id", "uuid", "name"],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "uuid": { "bsonType": "string" },
+    "name": { "bsonType": "string" },
+    "description": { "bsonType": "string" },
+    "startTime": { "bsonType": "date" },
+    "endTime": { "bsonType": "date" },
+    "derivedData": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "object",
+        "description": "data generated"
+      }
+    },
+    "measurements": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "string",
+        "description": "measurements uuid"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}
