@@ -2,11 +2,20 @@
 import { ApolloServer, Config } from 'apollo-server-fastify';
 import fastify from 'fastify';
 
+import { DbConnector } from './connectors';
 // Provide resolver functions for your schema fields
 import { resolvers } from './resolvers';
 // Construct a schema, using GraphQL schema language
 import { typeDefs } from './schemas';
 
+// Instantiates the database connector class
+const dbConnection = new DbConnector();
+
+/**
+ * Creates the server and connects to the database
+ * @param options - Apollo server related options
+ * @param port - server port for GraphQL
+ */
 async function createApp(options: Config, port: number) {
   const app = fastify({ logger: true });
   const server = new ApolloServer(options);
@@ -14,9 +23,11 @@ async function createApp(options: Config, port: number) {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.register(server.createHandler());
   await app.listen(port);
+  await dbConnection.connect();
   return server;
 }
 
+// Creates the server
 createApp({ typeDefs, resolvers }, 4000)
   .then((server) => {
     console.log(
@@ -27,3 +38,7 @@ createApp({ typeDefs, resolvers }, 4000)
     console.error(err);
     process.exit(1);
   });
+
+// Disconnect to the DB when the server goes down
+process.on('exit', dbConnection.disconnect);
+process.on('SIGINT', dbConnection.disconnect);
