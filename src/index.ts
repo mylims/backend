@@ -1,28 +1,29 @@
-import { ApolloServer } from 'apollo-server-koa';
-import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
-import json from 'koa-json';
-import logger from 'koa-logger';
+/* eslint-disable no-console */
+import { ApolloServer, Config } from 'apollo-server-fastify';
+import fastify from 'fastify';
 
 // Provide resolver functions for your schema fields
 import { resolvers } from './resolvers';
 // Construct a schema, using GraphQL schema language
 import { typeDefs } from './schemas';
 
-const server = new ApolloServer({ typeDefs, resolvers });
+async function createApp(options: Config, port: number) {
+  const app = fastify({ logger: true });
+  const server = new ApolloServer(options);
 
-const app = new Koa();
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  app.register(server.createHandler());
+  await app.listen(port);
+  return server;
+}
 
-/** Middleware */
-app.use(json());
-app.use(logger());
-app.use(bodyParser());
-
-server.applyMiddleware({ app });
-// alternatively you can get a composed middleware from the apollo server
-// app.use(server.getMiddleware());
-
-app.listen({ port: 4000 }, () =>
-  // eslint-disable-next-line no-console
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
-);
+createApp({ typeDefs, resolvers }, 4000)
+  .then((server) => {
+    console.log(
+      `🚀 Server ready at http://localhost:4000${server.graphqlPath}`,
+    );
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-koa';
+import { gql } from 'apollo-server-fastify';
 
 export const postSchema = gql`
   type Post {

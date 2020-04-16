@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-koa';
+import { gql } from 'apollo-server-fastify';
 
 import { authorSchema } from './author';
 import { postSchema } from './post';
