@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  mylims_server:
+    build: .
+    restart: always
+    depends_on:
+      - mylims_db
+    ports:
+      - 4000:4000
+    environment:
+      DB_USER: root
+      DB_PWD: example
+
+  mylims_db:
+    image: mongo:4.2.5
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
