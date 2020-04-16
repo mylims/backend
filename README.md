@@ -12,6 +12,21 @@ docker-compose up -d
 docker-compose logs mylims_server
 ```
 
+## Files structure
+
+Inside the `src` directory the entry file is `index.ts`, that creates the
+server and joins the resolvers and schemas into production. There are also 4
+directories that structure the project:
+
+- schemas: GraphQL schemas for type definitions, queries and mutations.
+- resolvers: GraphQL resolvers for queries and mutations.
+- models: Classes for data manipulation and search.
+- connectors: Wrapper functions for interacting with the database.
+
+Currently the only directories that are being tested are `resolvers` and
+`models`. Each test has the same name of the file, following the jest
+convention (`fileName.test.ts`).
+
 ## License
 
 [MIT](./LICENSE)
