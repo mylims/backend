@@ -1,31 +1,16 @@
 import { gql } from 'apollo-server-koa';
 
-export const typeDefs = gql`
-  type Author {
-    id: Int!
-    firstName: String
-    lastName: String
-    """
-    the list of Posts by this author
-    """
-    posts: [Post]
-  }
+import { authorSchema } from './author';
+import { postSchema } from './post';
 
-  type Post {
-    id: Int!
-    title: String
-    author: Author
-    votes: Int
-  }
-
-  # the schema allows the following query:
+export const baseSchema = gql`
+  # this schema allows empty mutations in order to extend them
   type Query {
-    posts: [Post]
-    author(id: Int!): Author
+    _empty: String
   }
-
-  # this schema allows the following mutation:
   type Mutation {
-    upvotePost(postId: Int!): Post
+    _empty: String
   }
 `;
+
+export const typeDefs = [baseSchema, authorSchema, postSchema];
