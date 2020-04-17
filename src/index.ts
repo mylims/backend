@@ -36,9 +36,5 @@ createApp({ typeDefs, resolvers, context }, 4000)
   })
   .catch((err) => {
     console.error(err);
-    process.exit(1);
+    return dbConnection.disconnect();
   });
-
-// Disconnect to the DB when the server goes down
-process.on('exit', dbConnection.disconnect);
-process.on('SIGINT', dbConnection.disconnect);
