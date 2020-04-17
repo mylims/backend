@@ -14,11 +14,23 @@ export class Kind {
     this.db = connection.db('mylims').collection('kind');
   }
 
+  public async getAll() {
+    return this.db.find().toArray();
+  }
+
+  public async empty() {
+    return this.db.drop();
+  }
+
   public async findById(_id: string) {
     return this.db.findOne({ _id });
   }
 
   public async findByName(name: string) {
-    return this.db.find({ name });
+    return this.db.find({ name }).toArray();
+  }
+
+  public async insertOne(kind: KindType) {
+    return this.db.insertOne(kind);
   }
 }
