@@ -23,12 +23,12 @@ async function createApp(options: Config, port: number) {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.register(server.createHandler());
   await app.listen(port);
-  await dbConnection.connect();
   return server;
 }
 
 // Creates the server
-createApp({ typeDefs, resolvers }, 4000)
+const context = async () => ({ db: await dbConnection.connect() });
+createApp({ typeDefs, resolvers, context }, 4000)
   .then((server) => {
     console.log(
       `🚀 Server ready at http://localhost:4000${server.graphqlPath}`,
