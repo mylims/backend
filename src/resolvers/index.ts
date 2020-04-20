@@ -1,6 +1,14 @@
+import { GraphQLScalarType } from 'graphql';
+import { IResolvers } from 'graphql-tools';
+import GraphQLJSON from 'graphql-type-json';
 import merge from 'lodash.merge';
 
-import { authorResolver } from './author';
-import { postResolver } from './post';
+import { kindResolver } from './kind';
 
-export const resolvers = merge(authorResolver, postResolver);
+interface Scalar {
+  [k: string]: GraphQLScalarType;
+}
+
+type Resolvers = Scalar | IResolvers;
+
+export const resolvers: Resolvers = merge({ JSON: GraphQLJSON }, kindResolver);

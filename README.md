@@ -12,6 +12,17 @@ docker-compose up -d
 docker-compose logs mylims_server
 ```
 
+If the server is run outside the docker environment, it's necessary export the
+following environmental variables:
+
+- `DB_USER`: MongoDB username (checked against the `admin` database)
+- `DB_PWD`: MongoDB password
+- `DB_HOST`: MongoDB host address (default to localhost)
+- `DB_PORT`: MongoDB port (default to 27017)
+
+For the testings there's no necessary to run against a local database instance,
+it is mocked using [jest mocks](https://github.com/shelfio/jest-mongodb).
+
 ## Files structure
 
 Inside the `src` directory the entry file is `index.ts`, that creates the

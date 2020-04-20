@@ -1,10 +1,12 @@
 import { gql } from 'apollo-server-fastify';
 
-import { authorSchema } from './author';
-import { postSchema } from './post';
+import { kindSchema } from './kind';
 
 export const baseSchema = gql`
-  # this schema allows empty mutations in order to extend them
+  # Allows the use of JSONs
+  scalar JSON
+
+  # This schema allows empty mutations in order to extend them
   type Query {
     _empty: String
   }
@@ -13,4 +15,4 @@ export const baseSchema = gql`
   }
 `;
 
-export const typeDefs = [baseSchema, authorSchema, postSchema];
+export const typeDefs = [baseSchema, kindSchema];
