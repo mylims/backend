@@ -1,4 +1,5 @@
 /* eslint-disable no-process-env */
+/* istanbul ignore file */
 import { MongoClient } from 'mongodb';
 
 const test: string | undefined = process.env.MONGO_URL;
