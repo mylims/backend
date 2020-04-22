@@ -9,20 +9,16 @@ export interface KindType {
   schema?: object;
 }
 
-export class Kind extends Base {
+export class Kind extends Base<KindType> {
   public constructor(connection: MongoClient) {
     super(connection, 'mylims', 'kind');
   }
 
-  public async findById(_id: string) {
-    return this.db.findOne({ _id });
-  }
-
-  public async findByName(name: string) {
+  /**
+   * Search all the elements with the given names
+   * @param name - Names to search
+   */
+  public async findByName(name: string): Promise<KindType[] | null> {
     return this.db.find({ name }).toArray();
-  }
-
-  public async insertOne(kind: KindType) {
-    return this.db.insertOne(kind);
   }
 }

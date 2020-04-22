@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 
-import { typeDefs } from '../../schemas/index';
+import { typeDefs } from '../../schemas';
 
 // Mocked server
 const server = new ApolloServer({ typeDefs, mocks: true });
