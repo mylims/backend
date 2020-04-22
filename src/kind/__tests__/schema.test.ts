@@ -3,8 +3,14 @@ import { createTestClient } from 'apollo-server-testing';
 
 import { typeDefs } from '../../schemas';
 
+const mocks = {
+  Int: () => 6,
+  String: () => 'Hello',
+  JSON: () => ({ test: true }),
+};
+
 // Mocked server
-const server = new ApolloServer({ typeDefs, mocks: true });
+const server = new ApolloServer({ typeDefs, mocks, mockEntireSchema: false });
 const { query } = createTestClient(server);
 
 // search kind by id
@@ -35,12 +41,8 @@ describe('Kind by id', () => {
 
     // check that the type values are right
     const { _id, name } = kind || {};
-    expect(_id).not.toBeUndefined();
-    expect(_id).not.toBeNull();
-    expect(typeof _id).toBe('string');
-    expect(name).not.toBeUndefined();
-    expect(name).not.toBeNull();
-    expect(typeof name).toBe('string');
+    expect(_id).toBe('Hello');
+    expect(name).toBe('Hello');
   });
 
   it('require id', async () => {
