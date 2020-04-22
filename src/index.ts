@@ -2,7 +2,7 @@
 import { ApolloServer, Config } from 'apollo-server-fastify';
 import fastify from 'fastify';
 
-import { DbConnector } from './connectors';
+import { DbConnector } from './connector';
 // Provide resolver functions for your schema fields
 import { resolvers } from './resolvers';
 // Construct a schema, using GraphQL schema language

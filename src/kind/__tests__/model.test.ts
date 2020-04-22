@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
-import { DbConnector } from '../../connectors';
-import { Kind } from '../kind';
+import { DbConnector } from '../../connector';
+import { Kind } from '../kind.model';
 
 const connector = new DbConnector();
 const kindTest = { _id: '1', name: 'text', description: 'test kind' };

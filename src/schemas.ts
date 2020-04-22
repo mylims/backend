@@ -1,7 +1,8 @@
 import { gql } from 'apollo-server-fastify';
 
-import { kindSchema } from './kind';
+import { kindSchema } from './kind/kind.schema';
 
+// Schema where all the other schemas are going to be merged
 export const baseSchema = gql`
   # Allows the use of JSONs
   scalar JSON

@@ -1,4 +1,6 @@
-import { MongoClient, Collection } from 'mongodb';
+import { MongoClient } from 'mongodb';
+
+import { Base } from '../utils/base.model';
 
 export interface KindType {
   _id: string;
@@ -7,19 +9,9 @@ export interface KindType {
   schema?: object;
 }
 
-export class Kind {
-  private db: Collection<KindType>;
-
+export class Kind extends Base {
   public constructor(connection: MongoClient) {
-    this.db = connection.db('mylims').collection('kind');
-  }
-
-  public async getAll() {
-    return this.db.find().toArray();
-  }
-
-  public async empty() {
-    return this.db.drop();
+    super(connection, 'mylims', 'kind');
   }
 
   public async findById(_id: string) {
