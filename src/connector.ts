@@ -1,4 +1,5 @@
 /* eslint-disable no-process-env */
+/* istanbul ignore file */
 import { MongoClient } from 'mongodb';
 
 const test: string | undefined = process.env.MONGO_URL;
@@ -21,7 +22,9 @@ export class DbConnector {
       if (user && pwd) {
         url = `${user}:${pwd}@${url}/?authSource=admin`;
       }
-      this.connection = await MongoClient.connect(test || `mongodb://${url}`);
+      this.connection = await MongoClient.connect(test || `mongodb://${url}`, {
+        useUnifiedTopology: true,
+      });
     }
     return this.connection;
   }

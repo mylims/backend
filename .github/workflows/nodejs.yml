@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: npm install and lint
+      - name: Lint
         run: |
           npm install
           npm run eslint
@@ -18,18 +18,13 @@ jobs:
           CI: true
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 13.x]
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Test with coverage
+        uses: actions/setup-node@v1.4.2
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: npm install and test
-        run: |
-          npm install
-          npm run test-coverage
+          node-version: 12.x
+      - run: npm install
+      - run: npm run test-coverage
         env:
           CI: true
