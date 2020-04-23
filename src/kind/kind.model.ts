@@ -19,6 +19,6 @@ export class Kind extends Base<KindType> {
    * @param name - Names to search
    */
   public async findByName(name: string): Promise<KindType[] | null> {
-    return this.db.find({ name }).toArray();
+    return this.findMany({ name });
   }
 }

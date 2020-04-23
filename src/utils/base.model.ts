@@ -1,4 +1,4 @@
-import { MongoClient, Collection } from 'mongodb';
+import { MongoClient, Collection, FilterQuery } from 'mongodb';
 
 export class Base<T> {
   protected db: Collection;
@@ -43,10 +43,30 @@ export class Base<T> {
   }
 
   /**
+   * Find single occurrence
+   * @param query - MongoDB query object
+   */
+  public async findOne(query: FilterQuery<T>): Promise<T | null> {
+    return this.db.findOne(query);
+  }
+
+  /**
+   * Find several occurrences
+   * @param query - MongoDB query object
+   */
+  public async findMany(query: FilterQuery<T>): Promise<T[] | null> {
+    return this.db.find(query).toArray();
+  }
+
+  /**
    * Insert one element
    * @param element - element to be inserted
    */
-  public async insertOne(element: T) {
+  public async insertOne(element: T): Promise<unknown> {
     return this.db.insertOne(element);
+  }
+
+  public async updateOne(_id: string, updater: Partial<T>): Promise<unknown> {
+    return this.db.updateOne({ _id }, { $set: updater });
   }
 }
