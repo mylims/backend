@@ -5,10 +5,11 @@ import { DbConnector } from '../../connector';
 import { Experiment } from '../experiment.model';
 
 const connector = new DbConnector();
+const uuid = uuidv4();
 const experimentTest = {
   _id: '1',
-  uuid: uuidv4(),
-  codeId: uuidv4(),
+  uuid,
+  codeId: uuid,
   owners: ['1'],
   tags: ['test'],
   title: 'test',
@@ -36,12 +37,20 @@ describe('test experiment model', () => {
     const experiment = new Experiment(db);
     expect(await experiment.getAll()).toHaveLength(0);
     expect(await experiment.findById('1')).toBeNull();
+    expect(await experiment.findByCodeId(uuid)).toBeNull();
+    expect(await experiment.findByUuid(uuid)).toBeNull();
+    expect(await experiment.findByOwner('1')).toHaveLength(0);
+    expect(await experiment.findByTag('test')).toHaveLength(0);
 
     // insert one experiment
     await experiment.insertOne(experimentTest);
     expect(await experiment.getAll()).toHaveLength(1);
     expect(await experiment.findById('1')).toStrictEqual(experimentTest);
     expect(await experiment.findById('2')).toBeNull();
+    expect(await experiment.findByCodeId(uuid)).toStrictEqual(experimentTest);
+    expect(await experiment.findByUuid(uuid)).toStrictEqual(experimentTest);
+    expect(await experiment.findByOwner('1')).toStrictEqual([experimentTest]);
+    expect(await experiment.findByTag('test')).toStrictEqual([experimentTest]);
 
     // unique id
     await expect(experiment.insertOne(experimentTest)).rejects.toThrow(
