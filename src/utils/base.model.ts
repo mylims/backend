@@ -1,6 +1,16 @@
-import { MongoClient, Collection, FilterQuery } from 'mongodb';
+import {
+  MongoClient,
+  Collection,
+  FilterQuery,
+  InsertOneWriteOpResult,
+  UpdateWriteOpResult,
+} from 'mongodb';
 
-export class Base<T> {
+interface WithId {
+  _id: string | number;
+}
+
+export class Base<T extends WithId> {
   protected db: Collection;
 
   /**
@@ -62,11 +72,14 @@ export class Base<T> {
    * Insert one element
    * @param element - element to be inserted
    */
-  public async insertOne(element: T): Promise<unknown> {
+  public async insertOne(element: T): Promise<InsertOneWriteOpResult<T>> {
     return this.db.insertOne(element);
   }
 
-  public async updateOne(_id: string, updater: Partial<T>): Promise<unknown> {
+  public async updateOne(
+    _id: string,
+    updater: Partial<T>,
+  ): Promise<UpdateWriteOpResult> {
     return this.db.updateOne({ _id }, { $set: updater });
   }
 }

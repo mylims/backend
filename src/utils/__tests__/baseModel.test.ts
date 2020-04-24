@@ -35,17 +35,37 @@ describe('Base model', () => {
     const base = new Base<BaseTest>(db, 'test', 'test');
     expect(await base.getAll()).toHaveLength(0);
     expect(await base.findById('1')).toBeNull();
+    expect(await base.findOne({ name: 'test' })).toBeNull();
+    expect(await base.findMany({ name: 'test' })).toHaveLength(0);
 
     // insert one base
     await base.insertOne(baseTest);
     expect(await base.getAll()).toHaveLength(1);
     expect(await base.findById('1')).toStrictEqual(baseTest);
     expect(await base.findById('2')).toBeNull();
+    expect(await base.findOne({ name: 'test' })).toStrictEqual(baseTest);
+    expect(await base.findMany({ name: 'test' })).toStrictEqual([baseTest]);
 
     // unique id
     await expect(base.insertOne(baseTest)).rejects.toThrow(
       /duplicate key error dup key/,
     );
+
+    // update
+    const {
+      result: { nModified: failed },
+    } = await base.updateOne('none', { name: 'updated' });
+    expect(failed).toBe(0);
+
+    const {
+      result: { nModified: success },
+    } = await base.updateOne('1', { name: 'updated' });
+    expect(success).toBe(1);
+    expect(await base.findOne({ name: 'test' })).toBeNull();
+    expect(await base.findOne({ name: 'updated' })).toStrictEqual({
+      ...baseTest,
+      name: 'updated',
+    });
 
     // delete all
     await base.empty();
