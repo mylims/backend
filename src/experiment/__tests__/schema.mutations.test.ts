@@ -37,6 +37,15 @@ const CREATE = gql`
   }
 `;
 
+const UPDATE = gql`
+  mutation updateExperiment($id: String!, $description: String!) {
+    updateExperiment(_id: $id, description: $description) {
+      _id
+      description
+    }
+  }
+`;
+
 describe('Experiment single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
@@ -64,5 +73,20 @@ describe('Experiment single searchers', () => {
     expect(data2.createExperiment).not.toBeUndefined();
     expect(data2.createExperiment).toHaveProperty('_id');
     expect(data2.createExperiment.title).toBe('test');
+
+    // Update experiment
+    const id = data2.createExperiment._id;
+    const description = 'test update';
+    const update = await mutate({
+      mutation: UPDATE,
+      variables: { id, description },
+    });
+    expect(update.errors).toBeUndefined();
+    expect(update.data).not.toBeUndefined();
+    expect(update.data).not.toBeNull();
+    const data3 = update.data || {};
+    expect(data3.updateExperiment).not.toBeUndefined();
+    expect(data3.updateExperiment._id).toBe(id);
+    expect(data3.updateExperiment.description).toBe(description);
   });
 });
