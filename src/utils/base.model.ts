@@ -3,7 +3,7 @@ import {
   Collection,
   FilterQuery,
   InsertOneWriteOpResult,
-  UpdateWriteOpResult,
+  FindAndModifyWriteOpResultObject,
 } from 'mongodb';
 
 interface WithId {
@@ -79,7 +79,11 @@ export class Base<T extends WithId> {
   public async updateOne(
     _id: string,
     updater: Partial<T>,
-  ): Promise<UpdateWriteOpResult> {
-    return this.db.updateOne({ _id }, { $set: updater });
+  ): Promise<FindAndModifyWriteOpResultObject<T>> {
+    return this.db.findOneAndUpdate(
+      { _id },
+      { $set: updater },
+      { returnOriginal: false },
+    );
   }
 }

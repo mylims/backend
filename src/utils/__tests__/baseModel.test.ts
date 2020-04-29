@@ -52,17 +52,11 @@ describe('Base model', () => {
     );
 
     // update
-    const {
-      result: { nModified: failed },
-    } = await base.updateOne('none', { name: 'updated' });
-    expect(failed).toBe(0);
+    const { value: failed } = await base.updateOne('none', { name: 'updated' });
+    expect(failed).toBeNull();
 
-    const {
-      result: { nModified: success },
-    } = await base.updateOne('1', { name: 'updated' });
-    expect(success).toBe(1);
-    expect(await base.findOne({ name: 'test' })).toBeNull();
-    expect(await base.findOne({ name: 'updated' })).toStrictEqual({
+    const { value: success } = await base.updateOne('1', { name: 'updated' });
+    expect(success).toStrictEqual({
       ...baseTest,
       name: 'updated',
     });
