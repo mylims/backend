@@ -19,6 +19,8 @@
     "test": "npm run test-coverage && npm run eslint",
     "test-coverage": "npm run test-only -- --coverage",
     "test-only": "jest",
+    "test-watch": "jest --watch",
+    "test-cache": "jest --clear-cache",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.cjs.json",
     "start": "npm run tsc && node ./lib/index.js"

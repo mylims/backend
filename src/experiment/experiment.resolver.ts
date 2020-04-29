@@ -68,7 +68,7 @@ export const experimentResolver: IResolvers = {
   },
 
   Mutation: {
-    createExperiment: (...params) => {
+    createExperiment: async (...params) => {
       const { db, experiment } = experimentHelper(params) as {
         db: Experiment;
         experiment: ExperimentType;
@@ -76,9 +76,10 @@ export const experimentResolver: IResolvers = {
       experiment.codeId = uuidv4(); // TODO use cheminfo tool
       experiment.uuid = uuidv4();
       experiment.creationDate = new Date().toString();
-      return db.insertOne(experiment);
+      const inserted = await db.insertOne(experiment);
+      return inserted.result && inserted.ops[0];
     },
-    updateExperiment: (...params) => {
+    updateExperiment: async (...params) => {
       const {
         db,
         _id,
@@ -110,7 +111,8 @@ export const experimentResolver: IResolvers = {
         output,
         lastModificationDate: new Date().toString(),
       };
-      return db.updateOne(_id, updater);
+      const { value } = await db.updateOne(_id, updater);
+      return value;
     },
   },
 };

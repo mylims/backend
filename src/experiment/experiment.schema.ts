@@ -33,7 +33,7 @@ export const experimentSchema = gql`
     tags: [String!]
     title: String!
     description: String
-    creationDate: String!
+    creationDate: String
     lastModificationDate: String
     status: [ExperimentStatusInput!]
     meta: JSON
