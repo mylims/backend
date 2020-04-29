@@ -46,7 +46,13 @@ const GET_CODE = gql`
 `;
 
 const singleCases: Cases = [
-  [GET_ID, 'experiment', { id: 'test' }, { name: 'fail' }, { id: 1 }],
+  [
+    GET_ID,
+    'experiment',
+    { id: '5ea9eefc8d0d5c34e0f2fc57' },
+    { name: 'fail' },
+    { id: 1 },
+  ],
   [
     GET_UUID,
     'experimentByUuid',

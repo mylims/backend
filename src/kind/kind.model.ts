@@ -1,9 +1,9 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 import { Base } from '../utils/base.model';
 
 export interface KindType {
-  _id: string;
+  _id: string | ObjectID;
   name: string;
   description?: string;
   schema?: object;

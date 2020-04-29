@@ -41,7 +41,7 @@ describe('Experiment single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { id: 'simple' },
+      variables: { id: '5ea9f58a2ce4513727579aba' },
     });
 
     // check no errors in the query

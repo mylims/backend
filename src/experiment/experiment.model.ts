@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 import { Base } from '../utils/base.model';
 
@@ -8,7 +8,7 @@ export interface ExperimentStatus {
 }
 
 export interface ExperimentType {
-  _id: string;
+  _id: string | ObjectID;
   uuid: string;
   codeId: string;
   owners: string[];

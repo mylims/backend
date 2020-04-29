@@ -4,14 +4,16 @@ import {
   FilterQuery,
   InsertOneWriteOpResult,
   FindAndModifyWriteOpResultObject,
+  ObjectID,
 } from 'mongodb';
 
 interface WithId {
-  _id: string | number;
+  _id: string | number | ObjectID;
 }
 
 export class Base<T extends WithId> {
   protected db: Collection;
+  private names: { db?: string; collection?: string };
 
   /**
    * Instantiates the collection connection
@@ -27,6 +29,7 @@ export class Base<T extends WithId> {
     if (!(db && collection)) {
       throw Error('DB and collection names are required');
     }
+    this.names = { db, collection };
     this.db = connection.db(db).collection(collection);
   }
 
@@ -40,15 +43,21 @@ export class Base<T extends WithId> {
   /**
    * Empty the collection
    */
-  public async empty() {
-    return this.db.drop();
+  public async empty(): Promise<boolean> {
+    try {
+      await this.db.drop();
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
    * Search by id key
-   * @param _id - MongoDB unique id
+   * @param id - MongoDB unique id
    */
-  public async findById(_id: string): Promise<T | null> {
+  public async findById(id: string): Promise<T | null> {
+    const _id = new ObjectID(id);
     return this.db.findOne({ _id });
   }
 
@@ -77,12 +86,21 @@ export class Base<T extends WithId> {
   }
 
   public async updateOne(
-    _id: string,
+    id: string,
     updater: Partial<T>,
   ): Promise<FindAndModifyWriteOpResultObject<T>> {
+    const _id = new ObjectID(id);
+
+    // remove null values to updater
+    let noNulls: Partial<T> = {};
+    for (const prop in updater) {
+      if (updater[prop] !== null && updater[prop] !== undefined) {
+        noNulls[prop] = updater[prop];
+      }
+    }
     return this.db.findOneAndUpdate(
       { _id },
-      { $set: updater },
+      { $set: noNulls },
       { returnOriginal: false },
     );
   }
