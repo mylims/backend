@@ -19,6 +19,8 @@
     "test": "npm run test-coverage && npm run eslint",
     "test-coverage": "npm run test-only -- --coverage",
     "test-only": "jest",
+    "test-watch": "jest --watch",
+    "test-cache": "jest --clear-cache",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.cjs.json",
     "start": "npm run tsc && node ./lib/index.js"
@@ -49,7 +51,8 @@
     "graphql-tools": "~5.0.0",
     "graphql-type-json": "~0.3.1",
     "lodash.merge": "~4.6.2",
-    "mongodb": "~3.5.6"
+    "mongodb": "~3.5.6",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "~1.1.5",

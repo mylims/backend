@@ -28,7 +28,7 @@ describe('Kind', () => {
     it('empty case', async () => {
       const { data, errors } = await query({
         query: GET_ID,
-        variables: { id: '1' },
+        variables: { id: '5ea9eefc8d0d5c34e0f2fc57' },
       });
       // check no errors in the query
       expect(errors).toBeUndefined();

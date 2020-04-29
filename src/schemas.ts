@@ -1,5 +1,6 @@
 import { gql } from 'apollo-server-fastify';
 
+import { experimentSchema } from './experiment/experiment.schema';
 import { kindSchema } from './kind/kind.schema';
 
 // Schema where all the other schemas are going to be merged
@@ -16,4 +17,4 @@ export const baseSchema = gql`
   }
 `;
 
-export const typeDefs = [baseSchema, kindSchema];
+export const typeDefs = [baseSchema, kindSchema, experimentSchema];

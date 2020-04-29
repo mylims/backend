@@ -1,9 +1,9 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 import { Base } from '../utils/base.model';
 
 export interface KindType {
-  _id: string;
+  _id: string | ObjectID;
   name: string;
   description?: string;
   schema?: object;
@@ -19,6 +19,6 @@ export class Kind extends Base<KindType> {
    * @param name - Names to search
    */
   public async findByName(name: string): Promise<KindType[] | null> {
-    return this.db.find({ name }).toArray();
+    return this.findMany({ name });
   }
 }
