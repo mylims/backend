@@ -17,6 +17,11 @@ function experimentHelper(
   return { ...params[1], db: new Experiment(params[2].db) };
 }
 
+/**
+ * Simplifies interaction with samples
+ * @param params - Resolver parameters
+ * @param key - Searched field
+ */
 function fetchSamples(
   params: [
     { input?: string[]; output?: string[] },
@@ -34,6 +39,34 @@ function fetchSamples(
   } else {
     return null;
   }
+}
+
+/**
+ * Simplifies sample appending
+ * @param params - Resolver parameters
+ * @param key - Field to be appended
+ */
+async function appendSamples(
+  params: [
+    unknown,
+    { sampleId: string; experimentId: string },
+    { db: MongoClient },
+    unknown,
+  ],
+  key: 'input' | 'output',
+) {
+  const { sampleId, experimentId } = params[1];
+  const { db } = params[2];
+
+  const sample = await new Sample(db).findById(sampleId);
+  if (sample == null) {
+    throw Error(`Sample ${sampleId} doesn't exist`);
+  }
+
+  const ans = await new Experiment(db).appendTo(experimentId, {
+    [key]: sampleId,
+  });
+  return ans && ans.value;
 }
 
 export const experimentResolver: IResolvers = {
@@ -102,6 +135,7 @@ export const experimentResolver: IResolvers = {
       const inserted = await db.insertOne(experiment);
       return inserted.result && inserted.ops[0];
     },
+
     updateExperiment: async (...params) => {
       const {
         db,
@@ -131,5 +165,8 @@ export const experimentResolver: IResolvers = {
       const { value } = await db.updateOne(_id, updater);
       return value;
     },
+
+    appendInput: (...params) => appendSamples(params, 'input'),
+    appendOutput: (...params) => appendSamples(params, 'output'),
   },
 };
