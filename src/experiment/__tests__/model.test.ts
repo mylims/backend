@@ -18,8 +18,6 @@ const experimentTest = {
   creationDate: new Date().toString(),
   status: [{ kind: 'test', date: new Date().toString() }],
   meta: { test: true },
-  input: ['1'],
-  output: ['2'],
 };
 
 describe('test experiment model', () => {

@@ -1,5 +1,6 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
+import { SampleType } from '../sample/sample.model';
 import { Base } from '../utils/base.model';
 import { Status } from '../utils/types';
 
@@ -15,8 +16,8 @@ export interface ExperimentType {
   lastModificationDate?: string;
   status?: Status[];
   meta?: object;
-  input?: string[];
-  output?: string[];
+  input?: SampleType[];
+  output?: SampleType[];
   // components: [Component]
 }
 

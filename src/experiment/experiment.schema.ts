@@ -23,8 +23,8 @@ export const experimentSchema = gql`
     lastModificationDate: String
     status: [Status!]
     meta: JSON
-    input: [String!]
-    output: [String!]
+    input: [Sample!]
+    output: [Sample!]
     # components: [Component]
   }
 
@@ -37,9 +37,6 @@ export const experimentSchema = gql`
     lastModificationDate: String
     status: [StatusInput!]
     meta: JSON
-    input: [String!]
-    output: [String!]
-    # components: [Component]
   }
 
   extend type Query {
