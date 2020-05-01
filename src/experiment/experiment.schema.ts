@@ -1,12 +1,12 @@
 import { gql } from 'apollo-server-fastify';
 
 export const experimentSchema = gql`
-  type ExperimentStatus {
+  type Status {
     kind: String!
     date: String
   }
 
-  input ExperimentStatusInput {
+  input StatusInput {
     kind: String!
     date: String
   }
@@ -21,7 +21,7 @@ export const experimentSchema = gql`
     description: String
     creationDate: String!
     lastModificationDate: String
-    status: [ExperimentStatus!]
+    status: [Status!]
     meta: JSON
     input: [String!]
     output: [String!]
@@ -35,7 +35,7 @@ export const experimentSchema = gql`
     description: String
     creationDate: String
     lastModificationDate: String
-    status: [ExperimentStatusInput!]
+    status: [StatusInput!]
     meta: JSON
     input: [String!]
     output: [String!]
@@ -61,7 +61,7 @@ export const experimentSchema = gql`
       tags: [String!]
       title: String
       description: String
-      status: [ExperimentStatusInput!]
+      status: [StatusInput!]
       meta: JSON
       input: [String!]
       output: [String!]

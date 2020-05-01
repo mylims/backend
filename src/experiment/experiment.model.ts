@@ -1,11 +1,7 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { Base } from '../utils/base.model';
-
-export interface ExperimentStatus {
-  kind: string;
-  date?: string;
-}
+import { Status } from '../utils/types';
 
 export interface ExperimentType {
   _id: string | ObjectID;
@@ -17,7 +13,7 @@ export interface ExperimentType {
   description?: string;
   creationDate: string;
   lastModificationDate?: string;
-  status?: ExperimentStatus[];
+  status?: Status[];
   meta?: object;
   input?: string[];
   output?: string[];

@@ -2,11 +2,9 @@ import { IResolvers } from 'graphql-tools';
 import { MongoClient } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  Experiment,
-  ExperimentType,
-  ExperimentStatus,
-} from './experiment.model';
+import { Status } from '../utils/types';
+
+import { Experiment, ExperimentType } from './experiment.model';
 
 /**
  * Simplifies the resolver manipulation
@@ -96,7 +94,7 @@ export const experimentResolver: IResolvers = {
         tags: string[];
         title: string;
         description: string;
-        status: ExperimentStatus[];
+        status: Status[];
         meta: object;
         input: string[];
         output: string[];
