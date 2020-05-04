@@ -104,4 +104,16 @@ export class Base<T extends WithId> {
       { returnOriginal: false },
     );
   }
+
+  public async appendTo(
+    id: string,
+    updater: { [k: string]: string },
+  ): Promise<FindAndModifyWriteOpResultObject<T>> {
+    const _id = new ObjectID(id);
+    return this.db.findOneAndUpdate(
+      { _id },
+      { $push: updater },
+      { returnOriginal: false },
+    );
+  }
 }

@@ -2,11 +2,10 @@ import { IResolvers } from 'graphql-tools';
 import { MongoClient } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  Experiment,
-  ExperimentType,
-  ExperimentStatus,
-} from './experiment.model';
+import { Sample } from '../sample/sample.model';
+import { Status } from '../utils/types';
+
+import { Experiment, ExperimentType } from './experiment.model';
 
 /**
  * Simplifies the resolver manipulation
@@ -16,6 +15,58 @@ function experimentHelper(
   params: [unknown, Partial<ExperimentType>, { db: MongoClient }, unknown],
 ): Partial<ExperimentType> | { db: Experiment } {
   return { ...params[1], db: new Experiment(params[2].db) };
+}
+
+/**
+ * Simplifies interaction with samples
+ * @param params - Resolver parameters
+ * @param key - Searched field
+ */
+function fetchSamples(
+  params: [
+    { input?: string[]; output?: string[] },
+    Partial<ExperimentType>,
+    { db: MongoClient },
+    unknown,
+  ],
+  key: 'input' | 'output',
+) {
+  const samples = new Sample(params[2].db);
+  const list = params[0][key];
+  if (list) {
+    const promSamples = list.map((id: string) => samples.findById(id));
+    return Promise.all(promSamples);
+  } else {
+    return null;
+  }
+}
+
+/**
+ * Simplifies sample appending
+ * @param params - Resolver parameters
+ * @param key - Field to be appended
+ */
+async function appendSamples(
+  params: [
+    unknown,
+    { sampleId: string; experimentId: string },
+    { db: MongoClient },
+    unknown,
+  ],
+  key: 'input' | 'output',
+) {
+  const { sampleId, experimentId } = params[1];
+  const { db } = params[2];
+
+  const sample = await new Sample(db).findById(sampleId);
+  if (sample == null) {
+    throw Error(`Sample ${sampleId} doesn't exist`);
+  }
+
+  const ans = await new Experiment(db).appendTo(experimentId, {
+    [key]: sampleId,
+  });
+  return ans && ans.value;
 }
 
 export const experimentResolver: IResolvers = {
@@ -67,6 +118,11 @@ export const experimentResolver: IResolvers = {
     },
   },
 
+  Experiment: {
+    input: (...params) => fetchSamples(params, 'input'),
+    output: (...params) => fetchSamples(params, 'output'),
+  },
+
   Mutation: {
     createExperiment: async (...params) => {
       const { db, experiment } = experimentHelper(params) as {
@@ -79,6 +135,7 @@ export const experimentResolver: IResolvers = {
       const inserted = await db.insertOne(experiment);
       return inserted.result && inserted.ops[0];
     },
+
     updateExperiment: async (...params) => {
       const {
         db,
@@ -88,18 +145,14 @@ export const experimentResolver: IResolvers = {
         description,
         status,
         meta,
-        input,
-        output,
       } = experimentHelper(params) as {
         db: Experiment;
         _id: string;
         tags: string[];
         title: string;
         description: string;
-        status: ExperimentStatus[];
+        status: Status[];
         meta: object;
-        input: string[];
-        output: string[];
       };
       const updater: Partial<ExperimentType> = {
         tags,
@@ -107,12 +160,13 @@ export const experimentResolver: IResolvers = {
         description,
         status,
         meta,
-        input,
-        output,
         lastModificationDate: new Date().toString(),
       };
       const { value } = await db.updateOne(_id, updater);
       return value;
     },
+
+    appendInput: (...params) => appendSamples(params, 'input'),
+    appendOutput: (...params) => appendSamples(params, 'output'),
   },
 };
