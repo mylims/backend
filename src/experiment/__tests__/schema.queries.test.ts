@@ -137,7 +137,7 @@ const multipleCases: Cases = [
   [
     GET_TITLE,
     'experimentByTitle',
-    { title: 'test' },
+    { title: 'title test' },
     { name: 'fail' },
     { title: 1 },
   ],

@@ -27,6 +27,8 @@ describe('test experiment model', () => {
   });
 
   afterAll(async () => {
+    const experiment = new Experiment(db);
+    await experiment.empty();
     await connector.disconnect();
   });
 
