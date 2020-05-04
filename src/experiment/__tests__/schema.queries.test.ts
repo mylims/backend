@@ -27,15 +27,6 @@ const GET_ID = gql`
   }
 `;
 
-const GET_UUID = gql`
-  query experimentByUuid($uuid: String!) {
-    experimentByUuid(uuid: $uuid) {
-      uuid
-      description
-    }
-  }
-`;
-
 const GET_CODE = gql`
   query experimentByCodeId($codeId: String!) {
     experimentByCodeId(codeId: $codeId) {
@@ -52,13 +43,6 @@ const singleCases: Cases = [
     { id: '5ea9eefc8d0d5c34e0f2fc57' },
     { name: 'fail' },
     { id: 1 },
-  ],
-  [
-    GET_UUID,
-    'experimentByUuid',
-    { uuid: 'test' },
-    { name: 'fail' },
-    { uuid: 1 },
   ],
   [
     GET_CODE,
@@ -153,7 +137,7 @@ const multipleCases: Cases = [
   [
     GET_TITLE,
     'experimentByTitle',
-    { title: 'test' },
+    { title: 'title test' },
     { name: 'fail' },
     { title: 1 },
   ],

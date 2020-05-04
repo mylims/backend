@@ -6,7 +6,6 @@ import { Status } from '../utils/types';
 
 export interface ExperimentType {
   _id: string | ObjectID;
-  uuid: string;
   codeId: string;
   owners: string[];
   tags: string[];
@@ -29,9 +28,6 @@ export class Experiment extends Base<ExperimentType> {
   // Unique id searchers
   public async findByCodeId(codeId: string): Promise<ExperimentType | null> {
     return this.findOne({ codeId });
-  }
-  public async findByUuid(uuid: string): Promise<ExperimentType | null> {
-    return this.findOne({ uuid });
   }
 
   // General searches

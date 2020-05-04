@@ -5,6 +5,7 @@ import { Base } from '../utils/base.model';
 export interface KindType {
   _id: string | ObjectID;
   name: string;
+  path?: string[];
   description?: string;
   schema?: object;
 }

@@ -86,13 +86,6 @@ export const experimentResolver: IResolvers = {
       };
       return db.findByCodeId(codeId);
     },
-    experimentByUuid: (...params) => {
-      const { db, uuid } = experimentHelper(params) as {
-        db: Experiment;
-        uuid: string;
-      };
-      return db.findByUuid(uuid);
-    },
 
     // General search
     experimentByOwner: (...params) => {
@@ -129,8 +122,7 @@ export const experimentResolver: IResolvers = {
         db: Experiment;
         experiment: ExperimentType;
       };
-      experiment.codeId = uuidv4(); // TODO use cheminfo tool
-      experiment.uuid = uuidv4();
+      experiment.codeId = uuidv4();
       experiment.creationDate = new Date().toString();
       const inserted = await db.insertOne(experiment);
       return inserted.result && inserted.ops[0];
