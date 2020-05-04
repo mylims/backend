@@ -17,7 +17,6 @@ export interface SampleSummary {
 
 export interface SampleType {
   _id: string | ObjectID;
-  uuid: string;
   title: string;
   status?: Status[];
   description?: string;
@@ -28,11 +27,6 @@ export interface SampleType {
 export class Sample extends Base<SampleType> {
   public constructor(connection: MongoClient) {
     super(connection, 'mylims', 'sample');
-  }
-
-  // Unique id searchers
-  public async findByUuid(uuid: string): Promise<SampleType | null> {
-    return this.findOne({ uuid });
   }
 
   // General searches

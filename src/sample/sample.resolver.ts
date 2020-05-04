@@ -1,6 +1,5 @@
 import { IResolvers } from 'graphql-tools';
 import { MongoClient } from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
 
 import { Status } from '../utils/types';
 
@@ -31,13 +30,6 @@ export const sampleResolver: IResolvers = {
       };
       return db.findById(_id);
     },
-    sampleByUuid: (...params) => {
-      const { db, uuid } = sampleHelper(params) as {
-        db: Sample;
-        uuid: string;
-      };
-      return db.findByUuid(uuid);
-    },
 
     // General search
     sampleByTitle: (...params) => {
@@ -55,7 +47,6 @@ export const sampleResolver: IResolvers = {
         db: Sample;
         sample: SampleType;
       };
-      sample.uuid = uuidv4();
       const inserted = await db.insertOne(sample);
       return inserted.result && inserted.ops[0];
     },

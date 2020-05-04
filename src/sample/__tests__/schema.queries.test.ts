@@ -27,15 +27,6 @@ const GET_ID = gql`
   }
 `;
 
-const GET_UUID = gql`
-  query sampleByUuid($uuid: String!) {
-    sampleByUuid(uuid: $uuid) {
-      uuid
-      description
-    }
-  }
-`;
-
 const singleCases: Cases = [
   [
     GET_ID,
@@ -44,7 +35,6 @@ const singleCases: Cases = [
     { name: 'fail' },
     { id: 1 },
   ],
-  [GET_UUID, 'sampleByUuid', { uuid: 'test' }, { name: 'fail' }, { uuid: 1 }],
 ];
 
 describe.each(singleCases)(

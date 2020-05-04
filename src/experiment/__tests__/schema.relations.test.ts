@@ -17,7 +17,6 @@ const sampleId = '123456789abc';
 const sample = {
   title: 'sample test',
   _id: new ObjectID(sampleId),
-  uuid: sampleId,
 };
 
 beforeAll(async () => {
@@ -41,7 +40,6 @@ const GET_ID = gql`
       input {
         title
         _id
-        uuid
       }
     }
   }
@@ -64,7 +62,6 @@ const APPEND = gql`
       input {
         title
         _id
-        uuid
       }
     }
   }
@@ -110,7 +107,6 @@ describe('Experiment with a sample input', () => {
     const data3 = update.data || {};
     expect(data3.appendInput).not.toBeUndefined();
     expect(data3.appendInput.input).toHaveLength(1);
-    expect(data3.appendInput.input[0].uuid).toBe(sampleId);
   });
 
   it('False sample creation', async () => {

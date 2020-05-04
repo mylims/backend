@@ -2,7 +2,6 @@ version: '3.7'
 services:
   mylims_server:
     build: .
-    restart: always
     depends_on:
       - mylims_db
     ports:
