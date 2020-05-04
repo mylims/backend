@@ -1,7 +1,7 @@
 import { IResolvers } from 'graphql-tools';
 import { MongoClient } from 'mongodb';
 
-import { Kind } from './kind.model';
+import { Kind, KindType } from './kind.model';
 
 /**
  * Simplifies the resolver manipulation
@@ -25,6 +25,32 @@ export const kindResolver: IResolvers = {
     kindByName: (...params) => {
       const { db, name } = kindHelper(params);
       return db.findByName(name as string);
+    },
+  },
+
+  Mutation: {
+    createKind: async (...params) => {
+      const { db, kind } = kindHelper(params) as {
+        db: Kind;
+        kind: KindType;
+      };
+      const inserted = await db.insertOne(kind);
+      return inserted.result && inserted.ops[0];
+    },
+    updateKind: async (...params) => {
+      const { db, _id, name, path, description, schema } = kindHelper(
+        params,
+      ) as {
+        db: Kind;
+        _id: string;
+        name: string;
+        path?: string[];
+        description?: string;
+        schema?: object;
+      };
+      const updater: Partial<KindType> = { name, path, description, schema };
+      const { value } = await db.updateOne(_id, updater);
+      return value;
     },
   },
 };

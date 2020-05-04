@@ -24,6 +24,8 @@ describe('test experiment model', () => {
 
   beforeAll(async () => {
     db = await connector.connect();
+    const experiment = new Experiment(db);
+    await experiment.empty();
   });
 
   afterAll(async () => {
