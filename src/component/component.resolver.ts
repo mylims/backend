@@ -1,6 +1,8 @@
 import { IResolvers } from 'graphql-tools';
 import { MongoClient } from 'mongodb';
 
+import { Kind } from '../kind/kind.model';
+
 import { Component, ComponentType } from './component.model';
 
 /**
@@ -60,6 +62,47 @@ async function removeComponent(
   return ans && ans.value;
 }
 
+/**
+ * Simplifies interaction with kind
+ * @param params - Resolver parameters
+ */
+function fetchKind(
+  params: [
+    { kind: string },
+    Partial<ComponentType>,
+    { db: MongoClient },
+    unknown,
+  ],
+) {
+  const kinds = new Kind(params[2].db);
+  const { kind } = params[0];
+  return kinds.findById(kind);
+}
+
+/**
+ * Simplifies interaction with linked components
+ * @param params - Resolver parameters
+ * @param key - Searched field
+ */
+function fetchComponent(
+  params: [
+    { input?: string[]; output?: string[] },
+    Partial<ComponentType>,
+    { db: MongoClient },
+    unknown,
+  ],
+  key: 'input' | 'output',
+) {
+  const components = new Component(params[2].db);
+  const list = params[0][key];
+  if (list) {
+    const promComponent = list.map((id: string) => components.findById(id));
+    return Promise.all(promComponent);
+  } else {
+    return null;
+  }
+}
+
 export const componentResolver: IResolvers = {
   Query: {
     // Search component by id
@@ -69,13 +112,19 @@ export const componentResolver: IResolvers = {
     },
   },
 
+  Component: {
+    kind: (...params) => fetchKind(params),
+    input: (...params) => fetchComponent(params, 'input'),
+    output: (...params) => fetchComponent(params, 'output'),
+  },
+
   Mutation: {
-    createComponent: async (...params) => {
-      const { db, component } = componentHelper(params) as {
-        db: Component;
-        component: ComponentType;
-      };
-      const inserted = await db.insertOne(component);
+    createComponent: async (_, { component }, { db }) => {
+      const kind = await new Kind(db).findById(component.kind);
+      if (kind === null) {
+        throw Error(`Kind ${component.kind} doesn't exists`);
+      }
+      const inserted = await new Component(db).insertOne(component);
       return inserted.result && inserted.ops[0];
     },
     updateComponent: async (...params) => {

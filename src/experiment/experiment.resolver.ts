@@ -158,7 +158,7 @@ export const experimentResolver: IResolvers = {
       return value;
     },
 
-    appendInput: (...params) => appendSamples(params, 'input'),
-    appendOutput: (...params) => appendSamples(params, 'output'),
+    appendExperimentInput: (...params) => appendSamples(params, 'input'),
+    appendExperimentOutput: (...params) => appendSamples(params, 'output'),
   },
 };

@@ -55,8 +55,8 @@ const CREATE = gql`
 `;
 
 const APPEND = gql`
-  mutation appendInput($sampleId: String!, $experimentId: String!) {
-    appendInput(sampleId: $sampleId, experimentId: $experimentId) {
+  mutation appendExperimentInput($sampleId: String!, $experimentId: String!) {
+    appendExperimentInput(sampleId: $sampleId, experimentId: $experimentId) {
       _id
       title
       input {
@@ -105,8 +105,8 @@ describe('Experiment with a sample input', () => {
     expect(update.data).not.toBeUndefined();
     expect(update.data).not.toBeNull();
     const data3 = update.data || {};
-    expect(data3.appendInput).not.toBeUndefined();
-    expect(data3.appendInput.input).toHaveLength(1);
+    expect(data3.appendExperimentInput).not.toBeUndefined();
+    expect(data3.appendExperimentInput.input).toHaveLength(1);
   });
 
   it('False sample creation', async () => {
@@ -143,8 +143,8 @@ describe('Experiment with a sample input', () => {
       variables: { experimentId, sampleId: 'cba987654321' },
     });
     const { errors: [error] = [], data: data3 } = update || {};
-    const { appendInput } = data3 || {};
+    const { appendExperimentInput } = data3 || {};
     expect(error.message).toBe("Sample cba987654321 doesn't exist");
-    expect(appendInput).toBeNull();
+    expect(appendExperimentInput).toBeNull();
   });
 });

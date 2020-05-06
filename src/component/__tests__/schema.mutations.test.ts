@@ -1,7 +1,9 @@
 import { ApolloServer, gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
+import { ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
 import { Component, ComponentType } from '../component.model';
@@ -12,9 +14,24 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
+const kindId = '123456789abc';
+const kind = {
+  _id: new ObjectID(kindId),
+  name: 'test area',
+  description: '(test == text) area',
+};
+
+beforeAll(async () => {
+  const db = await dbConnection.connect();
+  const exp = new Kind(db);
+  await exp.insertOne(kind);
+});
+
 afterAll(async () => {
   const db = await dbConnection.connect();
   const exp = new Component(db);
+  const kinds = new Kind(db);
+  await kinds.empty();
   await exp.empty();
   await dbConnection.disconnect();
 });
@@ -60,7 +77,7 @@ describe('Component single searchers', () => {
     expect(data1.component).toBeNull();
 
     // Insert component
-    const component: Partial<ComponentType> = { kind: 'test' };
+    const component: Partial<ComponentType> = { kind: kindId };
     const create = await mutate({
       mutation: CREATE,
       variables: { component },

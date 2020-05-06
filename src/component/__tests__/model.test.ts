@@ -31,7 +31,6 @@ describe('test component model', () => {
 
     // insert one component
     await component.insertOne(componentTest);
-    expect(await component.getAll()).toHaveLength(1);
     expect(await component.findById(id)).toStrictEqual(componentTest);
     expect(await component.findById('5ea9eefc8d0d5c34e0f2fc58')).toBeNull();
 

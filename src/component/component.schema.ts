@@ -23,9 +23,9 @@ export const componentSchema = gql`
     createComponent(component: ComponentInput!): Component
     updateComponent(_id: String!, kind: String, content: JSON): Component
 
-    appendComponentInput(parentId: String!, childId: String!): Experiment
-    appendComponentOutput(parentId: String!, childId: String!): Experiment
-    removeComponentInput(parentId: String!, childId: String!): Experiment
-    removeComponentOutput(parentId: String!, childId: String!): Experiment
+    appendComponentInput(parentId: String!, childId: String!): Component
+    appendComponentOutput(parentId: String!, childId: String!): Component
+    removeComponentInput(parentId: String!, childId: String!): Component
+    removeComponentOutput(parentId: String!, childId: String!): Component
   }
 `;
