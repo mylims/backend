@@ -1,5 +1,6 @@
 import { gql } from 'apollo-server-fastify';
 
+import { componentSchema } from './component/component.schema';
 import { experimentSchema } from './experiment/experiment.schema';
 import { kindSchema } from './kind/kind.schema';
 import { sampleSchema } from './sample/sample.schema';
@@ -20,6 +21,7 @@ export const baseSchema = gql`
 
 export const typeDefs = [
   baseSchema,
+  componentSchema,
   experimentSchema,
   kindSchema,
   sampleSchema,
