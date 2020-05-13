@@ -1,7 +1,8 @@
 import { IResolvers } from 'graphql-tools';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Component } from '../component/component.model';
 import { Sample } from '../sample/sample.model';
 import { Status } from '../utils/types';
 
@@ -114,6 +115,9 @@ export const experimentResolver: IResolvers = {
   Experiment: {
     input: (...params) => fetchSamples(params, 'input'),
     output: (...params) => fetchSamples(params, 'output'),
+    components: ({ _id }: { _id: string }, _, { db }: { db: MongoClient }) => {
+      return new Component(db).findByParentId(_id);
+    },
   },
 
   Mutation: {
@@ -160,5 +164,31 @@ export const experimentResolver: IResolvers = {
 
     appendExperimentInput: (...params) => appendSamples(params, 'input'),
     appendExperimentOutput: (...params) => appendSamples(params, 'output'),
+
+    appendExperimentComponent: async (
+      _,
+      {
+        componentId,
+        experimentId,
+      }: { componentId: string; experimentId: string },
+      { db }: { db: MongoClient },
+    ) => {
+      const components = new Component(db);
+      const component = await components.findById(componentId);
+      if (!component) {
+        throw Error(`Component ${componentId} doesn't exist`);
+      }
+
+      const experiments = new Experiment(db);
+      const experiment = await experiments.findById(experimentId);
+      if (!experiment) {
+        throw Error(`Experiment ${experimentId} doesn't exist`);
+      }
+
+      const { value } = await components.updateOne(componentId, {
+        parent: new ObjectId(experimentId),
+      });
+      return value;
+    },
   },
 };

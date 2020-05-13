@@ -24,7 +24,7 @@ export const experimentSchema = gql`
     meta: JSON
     input: [Sample!]
     output: [Sample!]
-    # components: [Component]
+    components: [Component!]
   }
 
   input ExperimentInput {
@@ -63,5 +63,9 @@ export const experimentSchema = gql`
     ): Experiment
     appendExperimentInput(sampleId: String!, experimentId: String!): Experiment
     appendExperimentOutput(sampleId: String!, experimentId: String!): Experiment
+    appendExperimentComponent(
+      componentId: String!
+      experimentId: String!
+    ): Component
   }
 `;

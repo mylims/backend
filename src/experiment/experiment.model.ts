@@ -17,7 +17,6 @@ export interface ExperimentType {
   meta?: object;
   input?: SampleType[];
   output?: SampleType[];
-  // components: [Component]
 }
 
 export class Experiment extends Base<ExperimentType> {

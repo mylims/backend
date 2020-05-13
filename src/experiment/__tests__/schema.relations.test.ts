@@ -2,7 +2,9 @@ import { ApolloServer, gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
+import { Component } from '../../component/component.model';
 import { DbConnector } from '../../connector';
+import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { Sample } from '../../sample/sample.model';
 import { typeDefs } from '../../schemas';
@@ -13,22 +15,24 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
-const sampleId = '123456789abc';
-const sample = {
-  title: 'sample test',
-  _id: new ObjectID(sampleId),
-};
+const id = '123456789abc';
+const _id = new ObjectID(id);
+const sample = { _id, title: 'sample test' };
+const kind = { _id, name: 'kind' };
+const component = { _id, kind: id };
 
 beforeAll(async () => {
   const db = await dbConnection.connect();
-  const exp = new Sample(db);
-  await exp.insertOne(sample);
+  await new Sample(db).insertOne(sample);
+  await new Kind(db).insertOne(kind);
+  await new Component(db).insertOne(component);
 });
 
 afterAll(async () => {
   const db = await dbConnection.connect();
-  const exp = new Sample(db);
-  await exp.empty();
+  await new Sample(db).empty();
+  await new Component(db).empty();
+  await new Kind(db).empty();
   await dbConnection.disconnect();
 });
 
@@ -40,6 +44,11 @@ const GET_ID = gql`
       input {
         title
         _id
+      }
+      components {
+        kind {
+          name
+        }
       }
     }
   }
@@ -62,6 +71,23 @@ const APPEND = gql`
       input {
         title
         _id
+      }
+    }
+  }
+`;
+
+const ADD_COMPONENT = gql`
+  mutation appendExperimentComponent(
+    $experimentId: String!
+    $componentId: String!
+  ) {
+    appendExperimentComponent(
+      componentId: $componentId
+      experimentId: $experimentId
+    ) {
+      parent
+      kind {
+        name
       }
     }
   }
@@ -99,7 +125,7 @@ describe('Experiment with a sample input', () => {
     const experimentId = data2.createExperiment._id;
     const update = await mutate({
       mutation: APPEND,
-      variables: { experimentId, sampleId },
+      variables: { experimentId, sampleId: id },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();
@@ -146,5 +172,49 @@ describe('Experiment with a sample input', () => {
     const { appendExperimentInput } = data3 || {};
     expect(error.message).toBe("Sample cba987654321 doesn't exist");
     expect(appendExperimentInput).toBeNull();
+  });
+});
+
+describe('Component relation', () => {
+  it('Add a component', async () => {
+    // Insert experiment
+    const create = await mutate({
+      mutation: CREATE,
+      variables: { experiment: { title: 'test' } },
+    });
+    expect(create.errors).toBeUndefined();
+    expect(create.data).not.toBeUndefined();
+    expect(create.data).not.toBeNull();
+    const data2 = create.data || {};
+    expect(data2.createExperiment).not.toBeUndefined();
+    expect(data2.createExperiment).toHaveProperty('_id');
+    expect(data2.createExperiment.title).toBe('test');
+
+    // Adds sample to an experiment
+    const experimentId = data2.createExperiment._id;
+    const update = await mutate({
+      mutation: ADD_COMPONENT,
+      variables: { experimentId, componentId: id },
+    });
+    expect(update.errors).toBeUndefined();
+    expect(update.data).not.toBeUndefined();
+    expect(update.data).not.toBeNull();
+    const data3 = update.data || {};
+    expect(data3.appendExperimentComponent).not.toBeUndefined();
+    expect(data3.appendExperimentComponent.kind.name).toBe(kind.name);
+
+    const res1 = await query({
+      query: GET_ID,
+      variables: { experimentId },
+    });
+
+    // check no errors in the query
+    expect(res1.errors).toBeUndefined();
+    expect(res1.data).not.toBeUndefined();
+    expect(res1.data).not.toBeNull();
+    const data1 = res1.data || {};
+    expect(data1.experiment).not.toBeUndefined();
+    expect(data1.experiment).not.toBeNull();
+    expect(data1.experiment.components).toHaveLength(1);
   });
 });
