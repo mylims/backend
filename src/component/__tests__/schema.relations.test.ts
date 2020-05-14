@@ -6,6 +6,7 @@ import { DbConnector } from '../../connector';
 import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 
 // Mocked server
 const dbConnection = new DbConnector();
@@ -13,7 +14,7 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
-const kindId = '123456789abc';
+const kindId = randomId(12);
 const kind = {
   _id: new ObjectID(kindId),
   name: 'test area',
@@ -74,11 +75,23 @@ const APPEND = gql`
   }
 `;
 
+const REMOVE = gql`
+  mutation removeComponentInput($parentId: String!, $childId: String!) {
+    removeComponentInput(parentId: $parentId, childId: $childId) {
+      _id
+      content
+      input {
+        content
+      }
+    }
+  }
+`;
+
 describe('Component with a kind', () => {
   it('Create a kind relation', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { componentId: '5ea9f58a2ce4513727579aba' },
+      variables: { componentId: randomId(12) },
     });
 
     // check no errors in the query
@@ -108,7 +121,7 @@ describe('Component with a kind', () => {
   it('False kind creation', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { componentId: '5ea9f58a2ce4513727579aba' },
+      variables: { componentId: randomId(12) },
     });
 
     // check no errors in the query
@@ -120,13 +133,14 @@ describe('Component with a kind', () => {
     expect(data1.component).toBeNull();
 
     // Insert component
-    const component = { kind: 'cba987654321', content: { title: 'test' } };
+    const fakeId = randomId(12);
+    const component = { kind: fakeId, content: { title: 'test' } };
     const { errors: [error] = [], data: data2 } = await mutate({
       mutation: CREATE,
       variables: { component },
     });
     const { createComponent } = data2 || {};
-    expect(error.message).toBe("Kind cba987654321 doesn't exists");
+    expect(error.message).toBe(`Kind ${fakeId} doesn't exists`);
     expect(createComponent).toBeNull();
   });
 });
@@ -178,6 +192,22 @@ describe('Append input', () => {
       title: 'parent',
     });
     expect(data3.appendComponentInput.input).toHaveLength(1);
+
+    // Removes relation
+    const remove = await mutate({
+      mutation: REMOVE,
+      variables: { parentId, childId },
+    });
+    expect(remove.errors).toBeUndefined();
+    expect(remove.data).not.toBeUndefined();
+    expect(remove.data).not.toBeNull();
+    const data4 = remove.data || {};
+    expect(data4.removeComponentInput).not.toBeUndefined();
+    expect(data4.removeComponentInput).toHaveProperty('_id');
+    expect(data4.removeComponentInput.content).toStrictEqual({
+      title: 'parent',
+    });
+    expect(data4.removeComponentInput.input).toHaveLength(0);
   });
 
   it('False kind creation', async () => {
@@ -198,12 +228,13 @@ describe('Append input', () => {
     const { _id: parentId } = data1.createComponent;
 
     // nonexisting insert component
+    const childId = randomId(12);
     const { errors: [error] = [], data: data2 } = await mutate({
       mutation: APPEND,
-      variables: { parentId, childId: '123456789abc' },
+      variables: { parentId, childId },
     });
     const { appendComponentInput } = data2 || {};
-    expect(error.message).toBe("Component 123456789abc doesn't exist");
+    expect(error.message).toBe(`Component ${childId} doesn't exist`);
     expect(appendComponentInput).toBeNull();
   });
 });

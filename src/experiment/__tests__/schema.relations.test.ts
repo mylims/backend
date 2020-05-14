@@ -8,6 +8,7 @@ import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { Sample } from '../../sample/sample.model';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 
 // Mocked server
 const dbConnection = new DbConnector();
@@ -15,7 +16,7 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
-const id = '123456789abc';
+const id = randomId(12);
 const _id = new ObjectID(id);
 const sample = { _id, title: 'sample test' };
 const kind = { _id, name: 'kind' };
@@ -97,7 +98,7 @@ describe('Experiment with a sample input', () => {
   it('Input creation', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { experimentId: '5ea9f58a2ce4513727579aba' },
+      variables: { experimentId: randomId(12) },
     });
 
     // check no errors in the query
@@ -138,7 +139,7 @@ describe('Experiment with a sample input', () => {
   it('False sample creation', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { experimentId: '5ea9f58a2ce4513727579aba' },
+      variables: { experimentId: randomId(12) },
     });
 
     // check no errors in the query
@@ -164,13 +165,14 @@ describe('Experiment with a sample input', () => {
 
     // Adds sample to an experiment
     const experimentId = data2.createExperiment._id;
+    const sampleId = randomId(12);
     const update = await mutate({
       mutation: APPEND,
-      variables: { experimentId, sampleId: 'cba987654321' },
+      variables: { experimentId, sampleId },
     });
     const { errors: [error] = [], data: data3 } = update || {};
     const { appendExperimentInput } = data3 || {};
-    expect(error.message).toBe("Sample cba987654321 doesn't exist");
+    expect(error.message).toBe(`Sample ${sampleId} doesn't exist`);
     expect(appendExperimentInput).toBeNull();
   });
 });

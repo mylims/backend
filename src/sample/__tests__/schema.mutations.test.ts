@@ -4,6 +4,7 @@ import { createTestClient } from 'apollo-server-testing';
 import { DbConnector } from '../../connector';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 import { Sample, SampleType } from '../sample.model';
 
 // Mocked server
@@ -50,7 +51,7 @@ describe('Sample single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { id: '5ea9f58a2ce4513727579aba' },
+      variables: { id: randomId(12) },
     });
 
     // check no errors in the query

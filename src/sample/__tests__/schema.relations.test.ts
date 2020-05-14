@@ -7,6 +7,7 @@ import { DbConnector } from '../../connector';
 import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 import { Sample } from '../sample.model';
 
 // Mocked server
@@ -15,15 +16,13 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
-const id = '123456789abc';
+const id = randomId(12);
 const _id = new ObjectID(id);
-const sample = { _id, title: 'sample test' };
 const kind = { _id, name: 'kind' };
 const component = { _id, kind: id };
 
 beforeAll(async () => {
   const db = await dbConnection.connect();
-  await new Sample(db).insertOne(sample);
   await new Kind(db).insertOne(kind);
   await new Component(db).insertOne(component);
 });
@@ -111,5 +110,42 @@ describe('Component relation', () => {
     expect(data1.sample).not.toBeUndefined();
     expect(data1.sample).not.toBeNull();
     expect(data1.sample.components).toHaveLength(1);
+  });
+
+  it('Nonexisting sample', async () => {
+    const update = await mutate({
+      mutation: ADD_COMPONENT,
+      variables: { sampleId: id, componentId: id },
+    });
+    const [error] = update.errors || [];
+    expect(update.errors).not.toBeUndefined();
+    expect(error.message).toBe(`Sample ${id} doesn't exist`);
+  });
+
+  it('Nonexisting component', async () => {
+    // Insert sample
+    const create = await mutate({
+      mutation: CREATE,
+      variables: { sample: { title: 'test' } },
+    });
+    expect(create.errors).toBeUndefined();
+    expect(create.data).not.toBeUndefined();
+    expect(create.data).not.toBeNull();
+    const data2 = create.data || {};
+    expect(data2.createSample).not.toBeUndefined();
+    expect(data2.createSample).toHaveProperty('_id');
+    expect(data2.createSample.title).toBe('test');
+
+    // Adds sample to an sample
+    const sampleId = data2.createSample._id;
+    const componentId = randomId(12);
+    const update = await mutate({
+      mutation: ADD_COMPONENT,
+      variables: { sampleId, componentId },
+    });
+
+    const [error] = update.errors || [];
+    expect(update.errors).not.toBeUndefined();
+    expect(error.message).toBe(`Component ${componentId} doesn't exist`);
   });
 });

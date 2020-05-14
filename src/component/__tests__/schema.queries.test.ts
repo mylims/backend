@@ -4,6 +4,7 @@ import { createTestClient } from 'apollo-server-testing';
 import { DbConnector } from '../../connector';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 
 // Mocked server
 const dbConnection = new DbConnector();
@@ -27,7 +28,7 @@ describe('Kind', () => {
     it('empty case', async () => {
       const { data, errors } = await query({
         query: GET_ID,
-        variables: { id: '5ea9eefc8d0d5c34e0f2fc57' },
+        variables: { id: randomId(12) },
       });
       // check no errors in the query
       expect(errors).toBeUndefined();

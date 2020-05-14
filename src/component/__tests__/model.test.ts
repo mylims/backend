@@ -1,10 +1,11 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { randomId } from '../../utils/fake';
 import { Component } from '../component.model';
 
 const connector = new DbConnector();
-const id = '5ea9eefc8d0d5c34e0f2fc57';
+const id = randomId(24);
 const componentTest = {
   _id: new ObjectID(id),
   kind: 'text',
@@ -32,7 +33,7 @@ describe('test component model', () => {
     // insert one component
     await component.insertOne(componentTest);
     expect(await component.findById(id)).toStrictEqual(componentTest);
-    expect(await component.findById('5ea9eefc8d0d5c34e0f2fc58')).toBeNull();
+    expect(await component.findById(randomId(12))).toBeNull();
 
     // unique id
     await expect(component.insertOne(componentTest)).rejects.toThrow(

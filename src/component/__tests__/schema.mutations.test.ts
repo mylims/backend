@@ -6,6 +6,7 @@ import { DbConnector } from '../../connector';
 import { Kind } from '../../kind/kind.model';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 import { Component, ComponentType } from '../component.model';
 
 // Mocked server
@@ -14,7 +15,7 @@ const context = async () => ({ db: await dbConnection.connect() });
 const server = new ApolloServer({ typeDefs, resolvers, context });
 const { query, mutate } = createTestClient(server);
 
-const kindId = '123456789abc';
+const kindId = randomId(12);
 const kind = {
   _id: new ObjectID(kindId),
   name: 'test area',
@@ -65,7 +66,7 @@ describe('Component single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { id: '5ea9f58a2ce4513727579aba' },
+      variables: { id: randomId(12) },
     });
 
     // check no errors in the query

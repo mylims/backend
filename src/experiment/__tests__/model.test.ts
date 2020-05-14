@@ -1,12 +1,12 @@
 import { MongoClient, ObjectID } from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
 
 import { DbConnector } from '../../connector';
+import { randomId } from '../../utils/fake';
 import { Experiment } from '../experiment.model';
 
 const connector = new DbConnector();
-const codeId = uuidv4();
-const id = '5ea9eefc8d0d5c34e0f2fc57';
+const codeId = randomId(16);
+const id = randomId(24);
 const experimentTest = {
   _id: new ObjectID(id),
   codeId,
@@ -47,7 +47,7 @@ describe('test experiment model', () => {
     await experiment.insertOne(experimentTest);
     expect(await experiment.getAll()).toHaveLength(1);
     expect(await experiment.findById(id)).toStrictEqual(experimentTest);
-    expect(await experiment.findById('5ea9eefc8d0d5c34e0f2fc58')).toBeNull();
+    expect(await experiment.findById(randomId(12))).toBeNull();
     expect(await experiment.findByCodeId(codeId)).toStrictEqual(experimentTest);
     expect(await experiment.findByOwner('1')).toStrictEqual([experimentTest]);
     expect(await experiment.findByTag('test')).toStrictEqual([experimentTest]);

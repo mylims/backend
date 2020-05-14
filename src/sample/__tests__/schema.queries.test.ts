@@ -5,6 +5,7 @@ import { DocumentNode } from 'graphql';
 import { DbConnector } from '../../connector';
 import { resolvers } from '../../resolvers';
 import { typeDefs } from '../../schemas';
+import { randomId } from '../../utils/fake';
 
 // Mocked server
 const dbConnection = new DbConnector();
@@ -28,13 +29,7 @@ const GET_ID = gql`
 `;
 
 const singleCases: Cases = [
-  [
-    GET_ID,
-    'sample',
-    { id: '5ea9eefc8d0d5c34e0f2fc57' },
-    { name: 'fail' },
-    { id: 1 },
-  ],
+  [GET_ID, 'sample', { id: randomId(12) }, { name: 'fail' }, { id: 1 }],
 ];
 
 describe.each(singleCases)(
