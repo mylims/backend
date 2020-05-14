@@ -51,8 +51,7 @@
     "graphql-tools": "~5.0.0",
     "graphql-type-json": "~0.3.1",
     "lodash.merge": "~4.6.2",
-    "mongodb": "~3.5.6",
-    "uuid": "^7.0.3"
+    "mongodb": "~3.5.6"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "~1.1.5",

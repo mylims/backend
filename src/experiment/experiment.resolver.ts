@@ -1,10 +1,10 @@
 import { IResolvers } from 'graphql-tools';
 import { MongoClient, ObjectId } from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
 
 import { Component } from '../component/component.model';
 import { Sample } from '../sample/sample.model';
 import { Status } from '../utils/types';
+import { randomId } from '../utils/fake';
 
 import { Experiment, ExperimentType } from './experiment.model';
 
@@ -126,7 +126,7 @@ export const experimentResolver: IResolvers = {
         db: Experiment;
         experiment: ExperimentType;
       };
-      experiment.codeId = uuidv4();
+      experiment.codeId = randomId(16);
       experiment.creationDate = new Date().toString();
       const inserted = await db.insertOne(experiment);
       return inserted.result && inserted.ops[0];
