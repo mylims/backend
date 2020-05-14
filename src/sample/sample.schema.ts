@@ -34,7 +34,7 @@ export const sampleSchema = gql`
     description: String
     comments: [SampleComment!]
     summary: [SampleSummary!]
-    # components: Array<Component, Measurement>
+    components: [Component!]
   }
 
   input SampleInput {
@@ -43,7 +43,6 @@ export const sampleSchema = gql`
     description: String
     comments: [SampleCommentInput!]
     summary: [SampleSummaryInput!]
-    # components: Array<Component, Measurement>
   }
 
   extend type Query {
@@ -64,5 +63,6 @@ export const sampleSchema = gql`
       comments: [SampleCommentInput!]
       summary: [SampleSummaryInput!]
     ): Sample
+    appendSampleComponent(componentId: String!, sampleId: String!): Component
   }
 `;

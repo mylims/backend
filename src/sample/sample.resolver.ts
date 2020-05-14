@@ -1,6 +1,7 @@
 import { IResolvers } from 'graphql-tools';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
+import { Component } from '../component/component.model';
 import { Status } from '../utils/types';
 
 import {
@@ -41,6 +42,12 @@ export const sampleResolver: IResolvers = {
     },
   },
 
+  Sample: {
+    components: ({ _id }: { _id: string }, _, { db }: { db: MongoClient }) => {
+      return new Component(db).findByParentId(_id);
+    },
+  },
+
   Mutation: {
     createSample: async (...params) => {
       const { db, sample } = sampleHelper(params) as {
@@ -76,6 +83,28 @@ export const sampleResolver: IResolvers = {
         summary,
       };
       const { value } = await db.updateOne(_id, updater);
+      return value;
+    },
+    appendSampleComponent: async (
+      _,
+      { componentId, sampleId }: { componentId: string; sampleId: string },
+      { db }: { db: MongoClient },
+    ) => {
+      const components = new Component(db);
+      const component = await components.findById(componentId);
+      if (!component) {
+        throw Error(`Component ${componentId} doesn't exist`);
+      }
+
+      const samples = new Sample(db);
+      const sample = await samples.findById(sampleId);
+      if (!sample) {
+        throw Error(`Sample ${sampleId} doesn't exist`);
+      }
+
+      const { value } = await components.updateOne(componentId, {
+        parent: new ObjectId(sampleId),
+      });
       return value;
     },
   },
