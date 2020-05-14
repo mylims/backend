@@ -24,6 +24,3 @@ jobs:
           node-version: 12.x
       - run: npm install
       - run: npm run test-coverage
-      - uses: codecov/codecov-action@v1
-        with:
-          file: ./coverage/clover.xml
