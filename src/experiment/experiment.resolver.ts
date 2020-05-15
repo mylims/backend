@@ -1,9 +1,10 @@
 import { IResolvers } from 'graphql-tools';
-import { MongoClient } from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
+import { MongoClient, ObjectId } from 'mongodb';
 
+import { Component } from '../component/component.model';
 import { Sample } from '../sample/sample.model';
 import { Status } from '../utils/types';
+import { randomId } from '../utils/fake';
 
 import { Experiment, ExperimentType } from './experiment.model';
 
@@ -114,6 +115,9 @@ export const experimentResolver: IResolvers = {
   Experiment: {
     input: (...params) => fetchSamples(params, 'input'),
     output: (...params) => fetchSamples(params, 'output'),
+    components: ({ _id }: { _id: string }, _, { db }: { db: MongoClient }) => {
+      return new Component(db).findByParentId(_id);
+    },
   },
 
   Mutation: {
@@ -122,7 +126,7 @@ export const experimentResolver: IResolvers = {
         db: Experiment;
         experiment: ExperimentType;
       };
-      experiment.codeId = uuidv4();
+      experiment.codeId = randomId(16);
       experiment.creationDate = new Date().toString();
       const inserted = await db.insertOne(experiment);
       return inserted.result && inserted.ops[0];
@@ -158,7 +162,33 @@ export const experimentResolver: IResolvers = {
       return value;
     },
 
-    appendInput: (...params) => appendSamples(params, 'input'),
-    appendOutput: (...params) => appendSamples(params, 'output'),
+    appendExperimentInput: (...params) => appendSamples(params, 'input'),
+    appendExperimentOutput: (...params) => appendSamples(params, 'output'),
+
+    appendExperimentComponent: async (
+      _,
+      {
+        componentId,
+        experimentId,
+      }: { componentId: string; experimentId: string },
+      { db }: { db: MongoClient },
+    ) => {
+      const components = new Component(db);
+      const component = await components.findById(componentId);
+      if (!component) {
+        throw Error(`Component ${componentId} doesn't exist`);
+      }
+
+      const experiments = new Experiment(db);
+      const experiment = await experiments.findById(experimentId);
+      if (!experiment) {
+        throw Error(`Experiment ${experimentId} doesn't exist`);
+      }
+
+      const { value } = await components.updateOne(componentId, {
+        parent: new ObjectId(experimentId),
+      });
+      return value;
+    },
   },
 };
