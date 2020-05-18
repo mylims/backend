@@ -35,6 +35,7 @@ export const sampleSchema = gql`
     comments: [SampleComment!]
     summary: [SampleSummary!]
     components: [Component!]
+    measurements: [Measurement!]
   }
 
   input SampleInput {
@@ -64,5 +65,9 @@ export const sampleSchema = gql`
       summary: [SampleSummaryInput!]
     ): Sample
     appendSampleComponent(componentId: String!, sampleId: String!): Component
+    appendSampleMeasurement(
+      measurementId: String!
+      sampleId: String!
+    ): Measurement
   }
 `;
