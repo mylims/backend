@@ -3,8 +3,8 @@ import { MongoClient, ObjectId } from 'mongodb';
 
 import { Component } from '../component/component.model';
 import { Sample } from '../sample/sample.model';
-import { Status } from '../utils/types';
 import { randomId } from '../utils/fake';
+import { Status } from '../utils/types';
 
 import { Experiment, ExperimentType } from './experiment.model';
 

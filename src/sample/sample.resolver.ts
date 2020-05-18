@@ -1,8 +1,9 @@
 import { IResolvers } from 'graphql-tools';
-import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 import { Component } from '../component/component.model';
-import { Status } from '../utils/types';
+import { Measurement } from '../measurement/measurement.model';
+import { Context, Status } from '../utils/types';
 
 import {
   Sample,
@@ -16,7 +17,7 @@ import {
  * @param params - Resolver parameters
  */
 function sampleHelper(
-  params: [unknown, Partial<SampleType>, { db: MongoClient }, unknown],
+  params: [unknown, Partial<SampleType>, Context, unknown],
 ): Partial<SampleType> | { db: Sample } {
   return { ...params[1], db: new Sample(params[2].db) };
 }
@@ -43,9 +44,10 @@ export const sampleResolver: IResolvers = {
   },
 
   Sample: {
-    components: ({ _id }: { _id: string }, _, { db }: { db: MongoClient }) => {
-      return new Component(db).findByParentId(_id);
-    },
+    components: ({ _id }: { _id: string }, _, { db }: Context) =>
+      new Component(db).findByParentId(_id),
+    measurements: ({ _id }: { _id: string }, _, { db }: Context) =>
+      new Measurement(db).findBySample(_id),
   },
 
   Mutation: {
@@ -88,7 +90,7 @@ export const sampleResolver: IResolvers = {
     appendSampleComponent: async (
       _,
       { componentId, sampleId }: { componentId: string; sampleId: string },
-      { db }: { db: MongoClient },
+      { db }: Context,
     ) => {
       const components = new Component(db);
       const component = await components.findById(componentId);
@@ -104,6 +106,28 @@ export const sampleResolver: IResolvers = {
 
       const { value } = await components.updateOne(componentId, {
         parent: new ObjectId(sampleId),
+      });
+      return value;
+    },
+    appendSampleMeasurement: async (
+      _,
+      { measurementId, sampleId }: { measurementId: string; sampleId: string },
+      { db }: Context,
+    ) => {
+      const measurements = new Measurement(db);
+      const measurement = await measurements.findById(measurementId);
+      if (!measurement) {
+        throw Error(`Measurement ${measurementId} doesn't exist`);
+      }
+
+      const samples = new Sample(db);
+      const sample = await samples.findById(sampleId);
+      if (!sample) {
+        throw Error(`Sample ${sampleId} doesn't exist`);
+      }
+
+      const { value } = await measurements.updateOne(measurementId, {
+        sample: new ObjectId(sampleId),
       });
       return value;
     },

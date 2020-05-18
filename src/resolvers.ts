@@ -5,6 +5,7 @@ import merge from 'lodash.merge';
 import { componentResolver } from './component/component.resolver';
 import { experimentResolver } from './experiment/experiment.resolver';
 import { kindResolver } from './kind/kind.resolver';
+import { measurementResolver } from './measurement/measurement.resolver';
 import { sampleResolver } from './sample/sample.resolver';
 
 export const resolvers: IResolvers = merge(
@@ -12,5 +13,6 @@ export const resolvers: IResolvers = merge(
   componentResolver,
   experimentResolver,
   kindResolver,
+  measurementResolver,
   sampleResolver,
 );
