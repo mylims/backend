@@ -17,6 +17,7 @@ export interface SampleSummary {
 
 export interface SampleType {
   _id: string | ObjectID;
+  codeId: string;
   title: string;
   status?: Status[];
   description?: string;
@@ -27,6 +28,11 @@ export interface SampleType {
 export class Sample extends Base<SampleType> {
   public constructor(connection: MongoClient) {
     super(connection, 'mylims', 'sample');
+  }
+
+  // Unique id searchers
+  public async findByCodeId(codeId: string): Promise<SampleType | null> {
+    return this.findOne({ codeId });
   }
 
   // General searches

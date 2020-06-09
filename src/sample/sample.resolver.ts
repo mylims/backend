@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 
 import { Component } from '../component/component.model';
 import { Measurement } from '../measurement/measurement.model';
+import { randomId } from '../utils/fake';
 import { Context, Status } from '../utils/types';
 
 import {
@@ -33,6 +34,14 @@ export const sampleResolver: IResolvers = {
       return db.findById(_id);
     },
 
+    sampleByCodeId: (...params) => {
+      const { db, codeId } = sampleHelper(params) as {
+        db: Sample;
+        codeId: string;
+      };
+      return db.findByCodeId(codeId);
+    },
+
     // General search
     sampleByTitle: (...params) => {
       const { db, title } = sampleHelper(params) as {
@@ -56,6 +65,7 @@ export const sampleResolver: IResolvers = {
         db: Sample;
         sample: SampleType;
       };
+      sample.codeId = sample.codeId || randomId(16);
       const inserted = await db.insertOne(sample);
       return inserted.result && inserted.ops[0];
     },
