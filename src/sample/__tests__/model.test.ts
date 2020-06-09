@@ -8,6 +8,7 @@ const connector = new DbConnector();
 const id = randomId(24);
 const sampleTest: SampleType = {
   _id: new ObjectID(id),
+  codeId: id,
   title: 'test',
   status: [{ kind: 'test', date: new Date().toString() }],
   description: 'test description',
@@ -38,11 +39,13 @@ describe('test sample model', () => {
     const sample = new Sample(db);
     expect(await sample.getAll()).toHaveLength(0);
     expect(await sample.findById(id)).toBeNull();
+    expect(await sample.findByCodeId(id)).toBeNull();
 
     // insert one sample
     await sample.insertOne(sampleTest);
     expect(await sample.getAll()).toHaveLength(1);
     expect(await sample.findById(id)).toStrictEqual(sampleTest);
+    expect(await sample.findByCodeId(id)).toStrictEqual(sampleTest);
     expect(await sample.findById(randomId(12))).toBeNull();
 
     // unique id

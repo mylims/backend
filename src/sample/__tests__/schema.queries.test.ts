@@ -28,8 +28,24 @@ const GET_ID = gql`
   }
 `;
 
+const GET_CODE = gql`
+  query sampleByCodeId($codeId: String!) {
+    sampleByCodeId(codeId: $codeId) {
+      codeId
+      description
+    }
+  }
+`;
+
 const singleCases: Cases = [
   [GET_ID, 'sample', { id: randomId(12) }, { name: 'fail' }, { id: 1 }],
+  [
+    GET_CODE,
+    'sampleByCodeId',
+    { codeId: 'test' },
+    { name: 'fail' },
+    { codeId: 1 },
+  ],
 ];
 
 describe.each(singleCases)(
