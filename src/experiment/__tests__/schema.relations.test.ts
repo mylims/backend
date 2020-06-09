@@ -18,7 +18,7 @@ const { query, mutate } = createTestClient(server);
 
 const id = randomId(12);
 const _id = new ObjectID(id);
-const sample = { _id, title: 'sample test' };
+const sample = { _id, codeId: id, title: 'sample test' };
 const kind = { _id, name: 'kind' };
 const component = { _id, kind: id };
 
