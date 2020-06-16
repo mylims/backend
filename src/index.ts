@@ -35,6 +35,6 @@ createApp({ typeDefs, resolvers, context }, 4000)
     );
   })
   .catch((err) => {
-    console.error(err);
+    console.error(`💥 Error: ${err}`);
     return dbConnection.disconnect();
   });

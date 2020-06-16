@@ -1,0 +1,12 @@
+overwrite: true
+schema: src/**/*.graphql
+generates:
+  src/generated/graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
+      - 'typescript-mongodb'
+    config:
+      declarationKind: 'interface'
+      scalars:
+        JSON: '{ [key: string]: any }'
