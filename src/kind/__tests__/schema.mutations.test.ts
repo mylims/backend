@@ -1,22 +1,21 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
-import { Kind, KindType } from '../kind.model';
+import { context } from '../../context';
+import { Kind as KindType } from '../../generated/graphql';
+import { createServer } from '../../index';
+import { randomId } from '../../utils/fake';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query, mutate } = createTestClient(server);
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Kind(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  const {
+    models: { kind },
+  } = await context();
+  await kind.drop();
+  return server.stop();
 });
 
 const GET_ID = gql`
@@ -38,8 +37,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateKind($id: String!, $name: String!) {
-    updateKind(_id: $id, name: $name) {
+  mutation updateKind($id: String!, $kind: KindInput!) {
+    updateKind(_id: $id, kind: $kind) {
       _id
       name
     }
@@ -50,7 +49,7 @@ describe('Kind single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { id: '5ea9f58a2ce4513727579aba' },
+      variables: { id: randomId(24) },
     });
 
     // check no errors in the query
@@ -83,7 +82,7 @@ describe('Kind single searchers', () => {
     const name = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, name },
+      variables: { id, kind: { name } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

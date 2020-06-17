@@ -1,10 +1,11 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { randomId } from '../../utils/fake';
 import { Kind } from '../kind.model';
 
 const connector = new DbConnector();
-const id = '5ea9eefc8d0d5c34e0f2fc57';
+const id = randomId(24);
 const kindTest = {
   _id: new ObjectID(id),
   name: 'text',
@@ -26,17 +27,13 @@ describe('test kind model', () => {
     // new empty collection
     const kind = new Kind(db);
     expect(await kind.getAll()).toHaveLength(0);
-    expect(await kind.findByName('text')).toHaveLength(0);
     expect(await kind.findById(id)).toBeNull();
 
     // insert one kind
     await kind.insertOne(kindTest);
     expect(await kind.getAll()).toHaveLength(1);
-    expect(await kind.findByName('empty')).toHaveLength(0);
-    expect(await kind.findByName('text')).toHaveLength(1);
-    expect(await kind.findByName('text')).toStrictEqual([kindTest]);
     expect(await kind.findById(id)).toStrictEqual(kindTest);
-    expect(await kind.findById('5ea9eefc8d0d5c34e0f2fc58')).toBeNull();
+    expect(await kind.findById(randomId(24))).toBeNull();
 
     // unique id
     await expect(kind.insertOne(kindTest)).rejects.toThrow(
@@ -44,9 +41,8 @@ describe('test kind model', () => {
     );
 
     // delete all
-    await kind.empty();
+    await kind.drop();
     expect(await kind.getAll()).toHaveLength(0);
-    expect(await kind.findByName('text')).toHaveLength(0);
     expect(await kind.findById(id)).toBeNull();
   });
 });
