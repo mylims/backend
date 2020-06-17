@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "clean": "rimraf lib",
-    "eslint": "eslint src --ext ts --cache",
+    "eslint": "eslint src --ext ts --cache --ignore-pattern src/generated/",
     "eslint-fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run tsc",
     "test": "npm run test-coverage && npm run eslint",
@@ -21,9 +21,8 @@
     "test-only": "jest --runInBand",
     "test-watch": "jest --watch",
     "test-cache": "jest --clear-cache",
-    "tsc": "npm run clean && npm run tsc-cjs && npm run copyfiles",
+    "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.cjs.json",
-    "copyfiles": "copyfiles -u 1 ./src/**/*.graphql ./lib",
     "start": "npm run tsc && node ./lib/index.js",
     "prestart": "npm run generate",
     "generate": "graphql-codegen --config codegen.yml"
@@ -70,7 +69,6 @@
     "@typescript-eslint/eslint-plugin": "~3.3.0",
     "@typescript-eslint/parser": "~3.3.0",
     "apollo-server-testing": "~2.14.4",
-    "copyfiles": "~2.3.0",
     "eslint": "~7.2.0",
     "eslint-config-cheminfo": "~4.0.0",
     "eslint-config-cheminfo-typescript": "~6.0.0",

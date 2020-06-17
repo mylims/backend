@@ -1,5 +1,5 @@
 overwrite: true
-schema: src/**/*.graphql
+schema: src/**/*.schema.ts
 generates:
   src/generated/graphql.ts:
     plugins:
@@ -7,6 +7,7 @@ generates:
       - 'typescript-resolvers'
       - 'typescript-mongodb'
     config:
+      useIndexSignature: true
       declarationKind: 'interface'
       scalars:
         JSON: '{ [key: string]: any }'
