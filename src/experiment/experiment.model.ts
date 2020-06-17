@@ -14,7 +14,7 @@ export interface ExperimentType {
   creationDate: string;
   lastModificationDate?: string;
   status?: Status[];
-  meta?: object;
+  meta?: Record<string, unknown>;
   input?: SampleType[];
   output?: SampleType[];
 }

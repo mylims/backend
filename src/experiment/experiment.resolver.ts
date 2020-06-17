@@ -148,7 +148,7 @@ export const experimentResolver: IResolvers = {
         title: string;
         description: string;
         status: Status[];
-        meta: object;
+        meta: Record<string, unknown>;
       };
       const updater: Partial<ExperimentType> = {
         tags,

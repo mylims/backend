@@ -132,7 +132,7 @@ export const componentResolver: IResolvers = {
         db: Component;
         _id: string;
         kind: string;
-        content: object;
+        content: Record<string, unknown>;
       };
       const updater: Partial<ComponentType> = { kind, content };
       const { value } = await db.updateOne(_id, updater);

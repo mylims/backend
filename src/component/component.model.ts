@@ -6,7 +6,7 @@ export interface ComponentType {
   _id: string | ObjectID;
   kind: string;
   parent?: string | ObjectID;
-  content?: object;
+  content?: Record<string, unknown>;
   input?: string[];
   output?: string[];
 }

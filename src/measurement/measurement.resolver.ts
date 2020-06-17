@@ -72,7 +72,7 @@ export const measurementResolver: IResolvers = {
         status?: Status[];
         startTime?: string;
         endTime?: string;
-        content?: object;
+        content?: Record<string, unknown>;
       };
       const updater: Partial<MeasurementType> = {
         sample,

@@ -11,7 +11,7 @@ export interface MeasurementType {
   status?: Status[];
   startTime?: string;
   endTime?: string;
-  content?: object;
+  content?: Record<string, unknown>;
 }
 
 export class Measurement extends Base<MeasurementType> {
