@@ -1,6 +1,7 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { randomId } from '../../utils/fake';
 import { Base } from '../base.model';
 
 interface BaseTest {
@@ -8,8 +9,12 @@ interface BaseTest {
   name: string;
 }
 
+interface BaseInputs {
+  name: string;
+}
+
 const connector = new DbConnector();
-const id = '5ea9eefc8d0d5c34e0f2fc57';
+const id = randomId(24);
 const baseTest = { _id: new ObjectID(id), name: 'test' };
 
 describe('Base model', () => {
@@ -25,15 +30,23 @@ describe('Base model', () => {
 
   it('DB and collection names required', () => {
     const required = 'DB and collection names are required';
-    expect(() => new Base<BaseTest>(db)).toThrow(required);
-    expect(() => new Base<BaseTest>(db, 'test')).toThrow(required);
-    expect(() => new Base<BaseTest>(db, 'test', '')).toThrow(required);
-    expect(() => new Base<BaseTest>(db, '', 'test')).toThrow(required);
+    expect(() => new Base<BaseTest, BaseInputs, BaseInputs>(db)).toThrow(
+      required,
+    );
+    expect(
+      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test'),
+    ).toThrow(required);
+    expect(
+      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test', ''),
+    ).toThrow(required);
+    expect(
+      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, '', 'test'),
+    ).toThrow(required);
   });
 
   it('Simple flow', async () => {
     // new empty collection
-    const base = new Base<BaseTest>(db, 'test', 'test');
+    const base = new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test', 'test');
     expect(await base.getAll()).toHaveLength(0);
     expect(await base.findById(id)).toBeNull();
     expect(await base.findOne({ name: 'test' })).toBeNull();
@@ -42,8 +55,7 @@ describe('Base model', () => {
     // insert one base
     await base.insertOne(baseTest);
     expect(await base.getAll()).toHaveLength(1);
-    expect(await base.findById(id)).toStrictEqual(baseTest);
-    expect(await base.findById('5ea9eefc8d0d5c34e0f2fc58')).toBeNull();
+    expect(await base.findById(randomId(24))).toBeNull();
     expect(await base.findOne({ name: 'test' })).toStrictEqual(baseTest);
     expect(await base.findMany({ name: 'test' })).toStrictEqual([baseTest]);
 
@@ -53,7 +65,7 @@ describe('Base model', () => {
     );
 
     // update
-    const { value: failed } = await base.updateOne('5ea9eefc8d0d5c34e0f2fc58', {
+    const { value: failed } = await base.updateOne(randomId(24), {
       name: 'updated',
     });
     expect(failed).toBeNull();
@@ -65,7 +77,7 @@ describe('Base model', () => {
     });
 
     // delete all
-    await base.empty();
+    await base.drop();
     expect(await base.getAll()).toHaveLength(0);
     expect(await base.findById(id)).toBeNull();
   });
