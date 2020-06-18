@@ -757,7 +757,7 @@ import { ObjectID } from 'mongodb';
 export type ComponentDbObject = {
   _id: ObjectID,
   kind?: Maybe<KindDbObject['_id']>,
-  parent?: Maybe<StringDbObject['_id']>,
+  parent?: Maybe<string>,
   content?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
   input?: Maybe<Array<ComponentDbObject['_id']>>,
   output?: Maybe<Array<ComponentDbObject['_id']>>,
