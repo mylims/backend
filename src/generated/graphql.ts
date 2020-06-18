@@ -33,7 +33,7 @@ export interface Query {
   kind?: Maybe<Kind>;
   kinds?: Maybe<Array<Kind>>;
   measurement?: Maybe<Measurement>;
-  measurementByTitle?: Maybe<Array<Measurement>>;
+  measurements?: Maybe<Array<Measurement>>;
   sample?: Maybe<Sample>;
   sampleByCodeId?: Maybe<Sample>;
   sampleByTitle?: Maybe<Array<Sample>>;
@@ -92,8 +92,9 @@ export interface QueryMeasurementArgs {
 }
 
 
-export interface QueryMeasurementByTitleArgs {
-  title: Scalars['String'];
+export interface QueryMeasurementsArgs {
+  page: Scalars['Int'];
+  filters: MeasurementFilters;
 }
 
 
@@ -248,12 +249,7 @@ export interface MutationUpdateKindArgs {
 
 export interface MutationUpdateMeasurementArgs {
   _id: Scalars['String'];
-  title?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  status?: Maybe<Array<StatusInput>>;
-  startTime?: Maybe<Scalars['String']>;
-  endTime?: Maybe<Scalars['String']>;
-  content?: Maybe<Scalars['JSON']>;
+  measurement: MeasurementInput;
 }
 
 
@@ -367,6 +363,14 @@ export interface MeasurementInput {
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['JSON']>;
+}
+
+export interface MeasurementFilters {
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
 }
 
 export interface SampleComment {
@@ -519,6 +523,7 @@ export type ResolversTypes = ResolversObject<{
   KindFilters: KindFilters;
   Measurement: ResolverTypeWrapper<Measurement>;
   MeasurementInput: MeasurementInput;
+  MeasurementFilters: MeasurementFilters;
   SampleComment: ResolverTypeWrapper<SampleComment>;
   SampleCommentInput: SampleCommentInput;
   SampleSummary: ResolverTypeWrapper<SampleSummary>;
@@ -548,6 +553,7 @@ export type ResolversParentTypes = ResolversObject<{
   KindFilters: KindFilters;
   Measurement: Measurement;
   MeasurementInput: MeasurementInput;
+  MeasurementFilters: MeasurementFilters;
   SampleComment: SampleComment;
   SampleCommentInput: SampleCommentInput;
   SampleSummary: SampleSummary;
@@ -609,7 +615,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   kind?: Resolver<Maybe<ResolversTypes['Kind']>, ParentType, ContextType, RequireFields<QueryKindArgs, '_id'>>;
   kinds?: Resolver<Maybe<Array<ResolversTypes['Kind']>>, ParentType, ContextType, RequireFields<QueryKindsArgs, 'page' | 'filters'>>;
   measurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<QueryMeasurementArgs, '_id'>>;
-  measurementByTitle?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType, RequireFields<QueryMeasurementByTitleArgs, 'title'>>;
+  measurements?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
   sample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleArgs, '_id'>>;
   sampleByCodeId?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleByCodeIdArgs, 'codeId'>>;
   sampleByTitle?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType, RequireFields<QuerySampleByTitleArgs, 'title'>>;
@@ -635,7 +641,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id' | 'component'>>;
   updateExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationUpdateExperimentArgs, '_id'>>;
   updateKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationUpdateKindArgs, '_id' | 'kind'>>;
-  updateMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, '_id'>>;
+  updateMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, '_id' | 'measurement'>>;
   updateSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationUpdateSampleArgs, '_id'>>;
 }>;
 
@@ -775,4 +781,16 @@ export type KindDbObject = {
   path?: Maybe<Array<string>>,
   description?: Maybe<string>,
   schema?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+};
+
+export type MeasurementDbObject = {
+  _id: ObjectID,
+  sample?: Maybe<string>,
+  title: string,
+  description?: Maybe<string>,
+  status?: Maybe<Array<Status>>,
+  startTime?: Maybe<string>,
+  endTime?: Maybe<string>,
+  content?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+  components?: Maybe<Array<ComponentDbObject['_id']>>,
 };

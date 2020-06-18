@@ -1,12 +1,13 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { MeasurementDbObject } from '../../generated/graphql';
 import { randomId } from '../../utils/fake';
-import { Measurement, MeasurementType } from '../measurement.model';
+import { Measurement } from '../measurement.model';
 
 const connector = new DbConnector();
 const id = randomId(24);
-const measurementTest: MeasurementType = {
+const measurementTest: MeasurementDbObject = {
   _id: new ObjectID(id),
   sample: randomId(24),
   title: 'test',
@@ -46,7 +47,7 @@ describe('test measurement model', () => {
     );
 
     // delete all
-    await measurement.empty();
+    await measurement.drop();
     expect(await measurement.getAll()).toHaveLength(0);
     expect(await measurement.findById(id)).toBeNull();
   });

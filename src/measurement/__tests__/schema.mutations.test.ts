@@ -1,23 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { context } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Measurement, MeasurementType } from '../measurement.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query, mutate } = createTestClient(server);
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Measurement(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  const { models } = await context();
+  await models.measurement.drop();
+  return server.stop();
 });
 
 const GET_ID = gql`
@@ -63,7 +58,7 @@ describe('Measurement single searchers', () => {
     expect(data1.measurement).toBeNull();
 
     // Insert measurement
-    const measurement: Partial<MeasurementType> = {
+    const measurement = {
       title: 'test',
       status: [{ kind: 'test', date: new Date().toString() }],
     };
