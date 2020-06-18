@@ -14,9 +14,9 @@ export const measurementSchema = gql`
   }
 
   input MeasurementInput {
-    title: String!
+    title: String
     description: String
-    status: [StatusInput!]
+    status: StatusInput
     startTime: String
     endTime: String
     content: JSON

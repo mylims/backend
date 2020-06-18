@@ -40,8 +40,8 @@ export const sampleSchema = gql`
   }
 
   input SampleInput {
-    title: String!
-    status: [StatusInput!]
+    title: String
+    status: StatusInput
     description: String
     comments: [SampleCommentInput!]
     summary: [SampleSummaryInput!]

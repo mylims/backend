@@ -7,7 +7,7 @@ export const experimentSchema = gql`
   }
 
   input StatusInput {
-    kind: String!
+    kind: String
     date: String
   }
 
@@ -31,11 +31,11 @@ export const experimentSchema = gql`
     codeId: String
     owners: [String!]
     tags: [String!]
-    title: String!
+    title: String
     description: String
     creationDate: String
     lastModificationDate: String
-    status: [StatusInput!]
+    status: StatusInput
     meta: JSON
   }
 

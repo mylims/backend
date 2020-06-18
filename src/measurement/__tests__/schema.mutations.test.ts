@@ -34,8 +34,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateMeasurement($id: String!, $description: String!) {
-    updateMeasurement(_id: $id, description: $description) {
+  mutation updateMeasurement($id: String!, $measurement: MeasurementInput!) {
+    updateMeasurement(_id: $id, measurement: $measurement) {
       _id
       description
     }
@@ -60,7 +60,7 @@ describe('Measurement single searchers', () => {
     // Insert measurement
     const measurement = {
       title: 'test',
-      status: [{ kind: 'test', date: new Date().toString() }],
+      status: { kind: 'test', date: new Date().toString() },
     };
     const create = await mutate({
       mutation: CREATE,
@@ -79,7 +79,7 @@ describe('Measurement single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, measurement: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

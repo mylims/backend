@@ -34,8 +34,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateExperiment($id: String!, $description: String!) {
-    updateExperiment(_id: $id, description: $description) {
+  mutation updateExperiment($id: String!, $experiment: ExperimentInput!) {
+    updateExperiment(_id: $id, experiment: $experiment) {
       _id
       description
     }
@@ -75,7 +75,7 @@ describe('Experiment single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, experiment: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

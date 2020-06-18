@@ -4,14 +4,15 @@ export const componentSchema = gql`
   type Component @entity {
     _id: String! @id
     kind: Kind @link
-    parent: String @column
+    parent: String @link
     content: JSON @column
     input: [Component!] @link
     output: [Component!] @link
   }
 
   input ComponentInput {
-    kind: String!
+    parent: String
+    kind: String
     content: JSON
   }
 

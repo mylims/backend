@@ -34,8 +34,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateSample($id: String!, $description: String!) {
-    updateSample(_id: $id, description: $description) {
+  mutation updateSample($id: String!, $sample: SampleInput!) {
+    updateSample(_id: $id, sample: $sample) {
       _id
       description
     }
@@ -60,7 +60,7 @@ describe('Sample single searchers', () => {
     // Insert sample
     const sample = {
       title: 'test',
-      status: [{ kind: 'test', date: new Date().toString() }],
+      status: { kind: 'test', date: new Date().toString() },
     };
     const create = await mutate({
       mutation: CREATE,
@@ -79,7 +79,7 @@ describe('Sample single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, sample: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

@@ -241,7 +241,8 @@ export interface Component {
 }
 
 export interface ComponentInput {
-  kind: Scalars['String'];
+  parent?: Maybe<Scalars['String']>;
+  kind?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['JSON']>;
 }
 
@@ -257,7 +258,7 @@ export interface Status {
 }
 
 export interface StatusInput {
-  kind: Scalars['String'];
+  kind?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
 }
 
@@ -282,11 +283,11 @@ export interface ExperimentInput {
   codeId?: Maybe<Scalars['String']>;
   owners?: Maybe<Array<Scalars['String']>>;
   tags?: Maybe<Array<Scalars['String']>>;
-  title: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   creationDate?: Maybe<Scalars['String']>;
   lastModificationDate?: Maybe<Scalars['String']>;
-  status?: Maybe<Array<StatusInput>>;
+  status?: Maybe<StatusInput>;
   meta?: Maybe<Scalars['JSON']>;
 }
 
@@ -310,7 +311,7 @@ export interface Kind {
 }
 
 export interface KindInput {
-  name: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
   path?: Maybe<Array<Scalars['String']>>;
   description?: Maybe<Scalars['String']>;
   schema?: Maybe<Scalars['JSON']>;
@@ -336,9 +337,9 @@ export interface Measurement {
 }
 
 export interface MeasurementInput {
-  title: Scalars['String'];
+  title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  status?: Maybe<Array<StatusInput>>;
+  status?: Maybe<StatusInput>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['JSON']>;
@@ -394,8 +395,8 @@ export interface Sample {
 }
 
 export interface SampleInput {
-  title: Scalars['String'];
-  status?: Maybe<Array<StatusInput>>;
+  title?: Maybe<Scalars['String']>;
+  status?: Maybe<StatusInput>;
   description?: Maybe<Scalars['String']>;
   comments?: Maybe<Array<SampleCommentInput>>;
   summary?: Maybe<Array<SampleSummaryInput>>;
@@ -756,7 +757,7 @@ import { ObjectID } from 'mongodb';
 export type ComponentDbObject = {
   _id: ObjectID,
   kind?: Maybe<KindDbObject['_id']>,
-  parent?: Maybe<string>,
+  parent?: Maybe<StringDbObject['_id']>,
   content?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
   input?: Maybe<Array<ComponentDbObject['_id']>>,
   output?: Maybe<Array<ComponentDbObject['_id']>>,

@@ -46,8 +46,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateComponent($id: String!, $content: JSON!) {
-    updateComponent(_id: $id, content: $content) {
+  mutation updateComponent($id: String!, $component: ComponentInput!) {
+    updateComponent(_id: $id, component: $component) {
       _id
       content
     }
@@ -87,7 +87,7 @@ describe('Component single searchers', () => {
     const content = { value: 'test update' };
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, content },
+      variables: { id, component: { content } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

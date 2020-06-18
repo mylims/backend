@@ -10,7 +10,7 @@ export const kindSchema = gql`
   }
 
   input KindInput {
-    name: String!
+    name: String
     path: [String!]
     description: String
     schema: JSON
