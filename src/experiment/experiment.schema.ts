@@ -1,9 +1,9 @@
 import { gql } from 'apollo-server-fastify';
 
 export const experimentSchema = gql`
-  type Status {
-    kind: String!
-    date: String
+  type Status @entity(embedded: true) {
+    kind: String! @column
+    date: String @column
   }
 
   input StatusInput {

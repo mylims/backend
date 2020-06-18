@@ -1,145 +1,62 @@
-import { IResolvers } from 'graphql-tools';
 import { ObjectId } from 'mongodb';
 
-import { Component } from '../component/component.model';
-import { Measurement } from '../measurement/measurement.model';
-import { randomId } from '../utils/fake';
-import { Context, Status } from '../utils/types';
+import { Context } from '../context';
+import { Resolvers } from '../generated/graphql';
 
-import {
-  Sample,
-  SampleType,
-  SampleComment,
-  SampleSummary,
-} from './sample.model';
-
-/**
- * Simplifies the resolver manipulation
- * @param params - Resolver parameters
- */
-function sampleHelper(
-  params: [unknown, Partial<SampleType>, Context, unknown],
-): Partial<SampleType> | { db: Sample } {
-  return { ...params[1], db: new Sample(params[2].db) };
-}
-
-export const sampleResolver: IResolvers = {
+export const sampleResolver: Resolvers<Context> = {
   Query: {
-    // Search sample by id
-    sample: (...params) => {
-      const { db, _id } = sampleHelper(params) as {
-        db: Sample;
-        _id: string;
-      };
-      return db.findById(_id);
+    sample(_, { _id }, { models: { sample } }) {
+      return sample.findById(_id);
     },
-
-    sampleByCodeId: (...params) => {
-      const { db, codeId } = sampleHelper(params) as {
-        db: Sample;
-        codeId: string;
-      };
-      return db.findByCodeId(codeId);
-    },
-
-    // General search
-    sampleByTitle: (...params) => {
-      const { db, title } = sampleHelper(params) as {
-        db: Sample;
-        title: string;
-      };
-      return db.findByTitle(title);
+    samples(_, { page, filters }, { models: { sample } }) {
+      return sample.findPaginated(page, filters);
     },
   },
 
   Sample: {
-    components: ({ _id }: { _id: string }, _, { db }: Context) =>
-      new Component(db).findByParentId(_id),
-    measurements: ({ _id }: { _id: string }, _, { db }: Context) =>
-      new Measurement(db).findBySample(_id),
+    components: ({ _id }, _, { models: { component } }) => {
+      return component.findByParentId(_id);
+    },
+    measurements: ({ _id }, _, { models: { measurement } }) => {
+      return measurement.findByParentId(_id);
+    },
   },
 
   Mutation: {
-    createSample: async (...params) => {
-      const { db, sample } = sampleHelper(params) as {
-        db: Sample;
-        sample: SampleType;
-      };
-      sample.codeId = sample.codeId || randomId(16);
-      const inserted = await db.insertOne(sample);
+    async createSample(_, { sample }, { models }) {
+      const inserted = await models.sample.insertOne(sample);
       return inserted.result && inserted.ops[0];
     },
-    updateSample: async (...params) => {
-      const {
-        db,
-        _id,
-        title,
-        status,
-        description,
-        comments,
-        summary,
-      } = sampleHelper(params) as {
-        db: Sample;
-        _id: string;
-        title: string;
-        status?: Status[];
-        description?: string;
-        comments?: SampleComment[];
-        summary?: SampleSummary[];
-      };
-      const updater: Partial<SampleType> = {
-        title,
-        status,
-        description,
-        comments,
-        summary,
-      };
-      const { value } = await db.updateOne(_id, updater);
+    async updateSample(_, { _id, sample }, { models }) {
+      const { value } = await models.sample.updateOne(_id, sample);
+      if (!value) throw new Error(`Updated failed to ${_id}`);
       return value;
     },
-    appendSampleComponent: async (
-      _,
-      { componentId, sampleId }: { componentId: string; sampleId: string },
-      { db }: Context,
-    ) => {
-      const components = new Component(db);
-      const component = await components.findById(componentId);
-      if (!component) {
-        throw Error(`Component ${componentId} doesn't exist`);
-      }
+    async appendSampleComponent(_, { componentId, sampleId }, { models }) {
+      const component = await models.component.findById(componentId);
+      if (!component) throw Error(`Component ${componentId} doesn't exist`);
 
-      const samples = new Sample(db);
-      const sample = await samples.findById(sampleId);
-      if (!sample) {
-        throw Error(`Sample ${sampleId} doesn't exist`);
-      }
+      const sample = await models.sample.findById(sampleId);
+      if (!sample) throw Error(`Sample ${sampleId} doesn't exist`);
 
-      const { value } = await components.updateOne(componentId, {
+      const { value } = await models.component.updateOne(componentId, {
         parent: new ObjectId(sampleId),
       });
-      return value;
+      return value || null;
     },
-    appendSampleMeasurement: async (
-      _,
-      { measurementId, sampleId }: { measurementId: string; sampleId: string },
-      { db }: Context,
-    ) => {
-      const measurements = new Measurement(db);
-      const measurement = await measurements.findById(measurementId);
+    async appendSampleMeasurement(_, { measurementId, sampleId }, { models }) {
+      const measurement = await models.measurement.findById(measurementId);
       if (!measurement) {
         throw Error(`Measurement ${measurementId} doesn't exist`);
       }
 
-      const samples = new Sample(db);
-      const sample = await samples.findById(sampleId);
-      if (!sample) {
-        throw Error(`Sample ${sampleId} doesn't exist`);
-      }
+      const sample = await models.sample.findById(sampleId);
+      if (!sample) throw Error(`Sample ${sampleId} doesn't exist`);
 
-      const { value } = await measurements.updateOne(measurementId, {
+      const { value } = await models.measurement.updateOne(measurementId, {
         sample: new ObjectId(sampleId),
       });
-      return value;
+      return value || null;
     },
   },
 };

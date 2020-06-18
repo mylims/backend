@@ -1,42 +1,10 @@
-import { MongoClient, ObjectID } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
-import { Base } from '../utils/base.model';
-import { Status } from '../utils/types';
-
-export interface SampleComment {
-  date?: string;
-  title: string;
-  description: string;
-  user: string;
-}
-export interface SampleSummary {
-  name: string;
-  value: string;
-  units: string;
-}
-
-export interface SampleType {
-  _id: string | ObjectID;
-  codeId: string;
-  title: string;
-  status?: Status[];
-  description?: string;
-  comments?: SampleComment[];
-  summary?: SampleSummary[];
-}
+import { Base } from '../base/base.model';
+import { Sample as SampleType } from '../generated/graphql';
 
 export class Sample extends Base<SampleType> {
   public constructor(connection: MongoClient) {
     super(connection, 'mylims', 'sample');
-  }
-
-  // Unique id searchers
-  public async findByCodeId(codeId: string): Promise<SampleType | null> {
-    return this.findOne({ codeId });
-  }
-
-  // General searches
-  public async findByTitle(title: string): Promise<SampleType[] | null> {
-    return this.findMany({ title });
   }
 }
