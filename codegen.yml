@@ -10,4 +10,4 @@ generates:
       useIndexSignature: true
       declarationKind: 'interface'
       scalars:
-        JSON: '{ [key: string]: any }'
+        JSON: 'Record<string, unknown> | Record<string, unknown>[]'
