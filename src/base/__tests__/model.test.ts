@@ -30,23 +30,15 @@ describe('Base model', () => {
 
   it('DB and collection names required', () => {
     const required = 'DB and collection names are required';
-    expect(() => new Base<BaseTest, BaseInputs, BaseInputs>(db)).toThrow(
-      required,
-    );
-    expect(
-      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test'),
-    ).toThrow(required);
-    expect(
-      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test', ''),
-    ).toThrow(required);
-    expect(
-      () => new Base<BaseTest, BaseInputs, BaseInputs>(db, '', 'test'),
-    ).toThrow(required);
+    expect(() => new Base<BaseTest>(db)).toThrow(required);
+    expect(() => new Base<BaseTest>(db, 'test')).toThrow(required);
+    expect(() => new Base<BaseTest>(db, 'test', '')).toThrow(required);
+    expect(() => new Base<BaseTest>(db, '', 'test')).toThrow(required);
   });
 
   it('Simple flow', async () => {
     // new empty collection
-    const base = new Base<BaseTest, BaseInputs, BaseInputs>(db, 'test', 'test');
+    const base = new Base<BaseTest>(db, 'test', 'test');
     expect(await base.getAll()).toHaveLength(0);
     expect(await base.findById(id)).toBeNull();
     expect(await base.findOne({ name: 'test' })).toBeNull();

@@ -12,7 +12,7 @@ interface WithId {
 }
 
 const PAGE_SIZE = 10;
-export class Base<Model extends WithId, ModelInput, ModelFilter> {
+export class Base<Model extends WithId> {
   protected db: Collection;
 
   /**
@@ -55,9 +55,15 @@ export class Base<Model extends WithId, ModelInput, ModelFilter> {
    * Search by id key
    * @param id - MongoDB unique id
    */
-  public async findById(id: string): Promise<Model | null> {
-    const _id = new ObjectID(id);
-    return this.db.findOne({ _id });
+  public async findById(
+    id: string | Model | null | undefined,
+  ): Promise<Model | null> {
+    if (id) {
+      const _id = typeof id === 'string' ? id : id._id;
+      return this.db.findOne({ _id: new ObjectID(_id) });
+    } else {
+      return Promise.resolve(null);
+    }
   }
 
   /**
@@ -76,7 +82,7 @@ export class Base<Model extends WithId, ModelInput, ModelFilter> {
     return this.db.find<Model>(filters).toArray();
   }
 
-  public async findPaginated(
+  public async findPaginated<ModelFilter>(
     page: number,
     filters: ModelFilter,
   ): Promise<Model[] | null> {
@@ -91,28 +97,20 @@ export class Base<Model extends WithId, ModelInput, ModelFilter> {
    * Insert one element
    * @param element - element to be inserted
    */
-  public async insertOne(
+  public async insertOne<ModelInput>(
     element: ModelInput,
   ): Promise<InsertOneWriteOpResult<Model>> {
     return this.db.insertOne(element);
   }
 
-  public async updateOne(
+  public async updateOne<ModelInput>(
     id: string,
-    updater: Partial<Model>,
+    updater: ModelInput,
   ): Promise<FindAndModifyWriteOpResultObject<Model>> {
     const _id = new ObjectID(id);
-
-    // remove null values to updater
-    let noNulls: Partial<Model> = {};
-    for (const prop in updater) {
-      if (updater[prop] !== null && updater[prop] !== undefined) {
-        noNulls[prop] = updater[prop];
-      }
-    }
     return this.db.findOneAndUpdate(
       { _id },
-      { $set: noNulls },
+      { $set: updater },
       { returnOriginal: false },
     );
   }
