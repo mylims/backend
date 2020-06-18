@@ -1,18 +1,13 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { DbConnector } from '../../connector';
-import { Kind } from '../../kind/kind.model';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { context } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Component, ComponentType } from '../component.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query, mutate } = createTestClient(server);
 
 const kindId = randomId(12);
@@ -23,18 +18,15 @@ const kind = {
 };
 
 beforeAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Kind(db);
-  await exp.insertOne(kind);
+  const { models } = await context();
+  await models.kind.insertOne(kind);
 });
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Component(db);
-  const kinds = new Kind(db);
-  await kinds.empty();
-  await exp.empty();
-  await dbConnection.disconnect();
+  const { models } = await context();
+  await models.kind.drop();
+  await models.component.drop();
+  return server.stop();
 });
 
 const GET_ID = gql`
@@ -78,7 +70,7 @@ describe('Component single searchers', () => {
     expect(data1.component).toBeNull();
 
     // Insert component
-    const component: Partial<ComponentType> = { kind: kindId };
+    const component = { kind: kindId };
     const create = await mutate({
       mutation: CREATE,
       variables: { component },

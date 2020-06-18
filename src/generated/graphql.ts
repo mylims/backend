@@ -8,7 +8,7 @@ export interface Scalars {
   Boolean: boolean;
   Int: number;
   Float: number;
-  JSON: { [key: string]: any };
+  JSON: Record<string, unknown> | Record<string, unknown>[];
 }
 
 
@@ -24,6 +24,7 @@ export interface Query {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']>;
   component?: Maybe<Component>;
+  components?: Maybe<Array<Component>>;
   experiment?: Maybe<Experiment>;
   experimentByCodeId?: Maybe<Experiment>;
   experimentByOwner?: Maybe<Array<Experiment>>;
@@ -41,6 +42,12 @@ export interface Query {
 
 export interface QueryComponentArgs {
   _id: Scalars['String'];
+}
+
+
+export interface QueryComponentsArgs {
+  page: Scalars['Int'];
+  filters: ComponentFilters;
 }
 
 
@@ -217,8 +224,7 @@ export interface MutationRemoveComponentOutputArgs {
 
 export interface MutationUpdateComponentArgs {
   _id: Scalars['String'];
-  kind?: Maybe<Scalars['String']>;
-  content?: Maybe<Scalars['JSON']>;
+  component: ComponentInput;
 }
 
 
@@ -263,7 +269,7 @@ export interface MutationUpdateSampleArgs {
 export interface Component {
   __typename?: 'Component';
   _id: Scalars['String'];
-  kind: Kind;
+  kind?: Maybe<Kind>;
   parent?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['JSON']>;
   input?: Maybe<Array<Component>>;
@@ -271,6 +277,11 @@ export interface Component {
 }
 
 export interface ComponentInput {
+  kind: Scalars['String'];
+  content?: Maybe<Scalars['JSON']>;
+}
+
+export interface ComponentFilters {
   kind: Scalars['String'];
   content?: Maybe<Scalars['JSON']>;
 }
@@ -498,6 +509,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Component: ResolverTypeWrapper<Component>;
   ComponentInput: ComponentInput;
+  ComponentFilters: ComponentFilters;
   Status: ResolverTypeWrapper<Status>;
   StatusInput: StatusInput;
   Experiment: ResolverTypeWrapper<Experiment>;
@@ -526,6 +538,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   Component: Component;
   ComponentInput: ComponentInput;
+  ComponentFilters: ComponentFilters;
   Status: Status;
   StatusInput: StatusInput;
   Experiment: Experiment;
@@ -587,6 +600,7 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   component?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<QueryComponentArgs, '_id'>>;
+  components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType, RequireFields<QueryComponentsArgs, 'page' | 'filters'>>;
   experiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentArgs, '_id'>>;
   experimentByCodeId?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentByCodeIdArgs, 'codeId'>>;
   experimentByOwner?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentByOwnerArgs, 'owner'>>;
@@ -618,7 +632,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationCreateSampleArgs, 'sample'>>;
   removeComponentInput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentInputArgs, 'parentId' | 'childId'>>;
   removeComponentOutput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentOutputArgs, 'parentId' | 'childId'>>;
-  updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id'>>;
+  updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id' | 'component'>>;
   updateExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationUpdateExperimentArgs, '_id'>>;
   updateKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationUpdateKindArgs, '_id' | 'kind'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, '_id'>>;
@@ -627,7 +641,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type ComponentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  kind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType>;
+  kind?: Resolver<Maybe<ResolversTypes['Kind']>, ParentType, ContextType>;
   parent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   input?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType>;
@@ -746,10 +760,19 @@ export type DirectiveResolvers<ContextType = any> = ResolversObject<{
  */
 export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
 import { ObjectID } from 'mongodb';
+export type ComponentDbObject = {
+  _id: ObjectID,
+  kind?: Maybe<KindDbObject['_id']>,
+  parent?: Maybe<string>,
+  content?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+  input?: Maybe<Array<ComponentDbObject['_id']>>,
+  output?: Maybe<Array<ComponentDbObject['_id']>>,
+};
+
 export type KindDbObject = {
   _id: ObjectID,
   name: string,
   path?: Maybe<Array<string>>,
   description?: Maybe<string>,
-  schema?: Maybe<{ [key: string]: any }>,
+  schema?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
 };

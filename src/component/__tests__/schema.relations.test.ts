@@ -1,17 +1,13 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { DbConnector } from '../../connector';
-import { Kind } from '../../kind/kind.model';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { context } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query, mutate } = createTestClient(server);
 
 const kindId = randomId(12);
@@ -21,19 +17,16 @@ const kind = {
   description: '(test == text) area',
 };
 
-beforeEach(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Kind(db);
-  await exp.insertOne(kind);
+beforeAll(async () => {
+  const { models } = await context();
+  await models.kind.insertOne(kind);
 });
 
-afterEach(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Kind(db);
-  await exp.empty();
+afterAll(async () => {
+  const { models } = await context();
+  await models.kind.drop();
+  return server.stop();
 });
-
-afterAll(async () => dbConnection.disconnect());
 
 const GET_ID = gql`
   query component($componentId: String!) {

@@ -17,7 +17,7 @@ describe('test component model', () => {
 
   beforeAll(async () => {
     db = await connector.connect();
-    await new Component(db).empty();
+    await new Component(db).drop();
   });
 
   afterAll(async () => {
@@ -41,7 +41,7 @@ describe('test component model', () => {
     );
 
     // delete all
-    await component.empty();
+    await component.drop();
     expect(await component.getAll()).toHaveLength(0);
     expect(await component.findById(id)).toBeNull();
   });
