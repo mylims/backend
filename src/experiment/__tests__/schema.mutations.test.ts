@@ -1,23 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { context } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Experiment } from '../experiment.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query, mutate } = createTestClient(server);
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Experiment(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  const { models } = await context();
+  await models.experiment.drop();
+  return server.stop();
 });
 
 const GET_ID = gql`

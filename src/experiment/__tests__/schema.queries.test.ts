@@ -1,22 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
+import { gql } from 'apollo-server-fastify';
 import { createTestClient } from 'apollo-server-testing';
 import { DocumentNode } from 'graphql';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { context } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
+const server = createServer({ context });
 const { query } = createTestClient(server);
 
-afterAll(async () => dbConnection.disconnect());
-interface Map {
-  [k: string]: string | number;
-}
+afterAll(async () => server.stop());
+
+type Map = Record<string, unknown>;
 type Cases = Array<[DocumentNode, string, Map, Map, Map]>;
 
 const GET_ID = gql`

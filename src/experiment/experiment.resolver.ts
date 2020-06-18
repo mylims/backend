@@ -1,194 +1,102 @@
-import { IResolvers } from 'graphql-tools';
-import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
-import { Component } from '../component/component.model';
+import { Context, Models } from '../context';
+import { Resolvers, Sample as SampleType } from '../generated/graphql';
 import { Sample } from '../sample/sample.model';
 import { randomId } from '../utils/fake';
-import { Status } from '../utils/types';
+import { notEmpty } from '../utils/resolvers';
 
-import { Experiment, ExperimentType } from './experiment.model';
-
-/**
- * Simplifies the resolver manipulation
- * @param params - Resolver parameters
- */
-function experimentHelper(
-  params: [unknown, Partial<ExperimentType>, { db: MongoClient }, unknown],
-): Partial<ExperimentType> | { db: Experiment } {
-  return { ...params[1], db: new Experiment(params[2].db) };
-}
-
-/**
- * Simplifies interaction with samples
- * @param params - Resolver parameters
- * @param key - Searched field
- */
-function fetchSamples(
-  params: [
-    { input?: string[]; output?: string[] },
-    Partial<ExperimentType>,
-    { db: MongoClient },
-    unknown,
-  ],
-  key: 'input' | 'output',
+async function fetchSamples(
+  list: SampleType[] | null | undefined,
+  sample: Sample,
 ) {
-  const samples = new Sample(params[2].db);
-  const list = params[0][key];
   if (list) {
-    const promSamples = list.map((id: string) => samples.findById(id));
-    return Promise.all(promSamples);
+    const promSamples = list.map((id) => sample.findById(id));
+    const samples = await Promise.all(promSamples);
+    return samples.filter(notEmpty);
   } else {
     return null;
   }
 }
 
-/**
- * Simplifies sample appending
- * @param params - Resolver parameters
- * @param key - Field to be appended
- */
-async function appendSamples(
-  params: [
-    unknown,
-    { sampleId: string; experimentId: string },
-    { db: MongoClient },
-    unknown,
-  ],
+async function appendSample(
+  models: Models,
+  sampleId: string,
+  experimentId: string,
   key: 'input' | 'output',
 ) {
-  const { sampleId, experimentId } = params[1];
-  const { db } = params[2];
-
-  const sample = await new Sample(db).findById(sampleId);
-  if (sample == null) {
-    throw Error(`Sample ${sampleId} doesn't exist`);
+  const child = await models.sample.findById(sampleId);
+  if (!child) {
+    throw new Error(`Sample ${sampleId} doesn't exist`);
   }
 
-  const ans = await new Experiment(db).appendTo(experimentId, {
-    [key]: sampleId,
-  });
-  return ans && ans.value;
+  const ans = await models.experiment.append(experimentId, { [key]: sampleId });
+  if (!ans || !ans.value) {
+    throw new Error(`Append ${sampleId} to ${experimentId} failed`);
+  }
+  return ans.value;
 }
 
-export const experimentResolver: IResolvers = {
+export const experimentResolver: Resolvers<Context> = {
   Query: {
-    // Search experiment by id
-    experiment: (...params) => {
-      const { db, _id } = experimentHelper(params) as {
-        db: Experiment;
-        _id: string;
-      };
-      return db.findById(_id);
+    experiment(_, { _id }, { models: { experiment } }) {
+      return experiment.findById(_id);
     },
-    experimentByCodeId: (...params) => {
-      const { db, codeId } = experimentHelper(params) as {
-        db: Experiment;
-        codeId: string;
-      };
-      return db.findByCodeId(codeId);
-    },
-
-    // General search
-    experimentByOwner: (...params) => {
-      const { db, owner } = experimentHelper(params) as {
-        db: Experiment;
-        owner: string;
-      };
-      return db.findByOwner(owner);
-    },
-    experimentByTag: (...params) => {
-      const { db, tag } = experimentHelper(params) as {
-        db: Experiment;
-        tag: string;
-      };
-      return db.findByTag(tag);
-    },
-    experimentByTitle: (...params) => {
-      const { db, title } = experimentHelper(params) as {
-        db: Experiment;
-        title: string;
-      };
-      return db.findByTitle(title);
+    experiments(_, { page, filters }, { models: { experiment } }) {
+      return experiment.findPaginated(page, filters);
     },
   },
 
   Experiment: {
-    input: (...params) => fetchSamples(params, 'input'),
-    output: (...params) => fetchSamples(params, 'output'),
-    components: ({ _id }: { _id: string }, _, { db }: { db: MongoClient }) => {
-      return new Component(db).findByParentId(_id);
+    input({ input }, _, { models: { sample } }) {
+      return fetchSamples(input, sample);
+    },
+    output({ output }, _, { models: { sample } }) {
+      return fetchSamples(output, sample);
+    },
+    components({ _id }, _, { models: { component } }) {
+      return component.findByParentId(_id);
     },
   },
 
   Mutation: {
-    createExperiment: async (...params) => {
-      const { db, experiment } = experimentHelper(params) as {
-        db: Experiment;
-        experiment: ExperimentType;
-      };
+    async createExperiment(_, { experiment }, { models }) {
       experiment.codeId = randomId(16);
       experiment.creationDate = new Date().toString();
-      const inserted = await db.insertOne(experiment);
+      const inserted = await models.experiment.insertOne(experiment);
       return inserted.result && inserted.ops[0];
     },
-
-    updateExperiment: async (...params) => {
-      const {
-        db,
-        _id,
-        tags,
-        title,
-        description,
-        status,
-        meta,
-      } = experimentHelper(params) as {
-        db: Experiment;
-        _id: string;
-        tags: string[];
-        title: string;
-        description: string;
-        status: Status[];
-        meta: Record<string, unknown>;
-      };
-      const updater: Partial<ExperimentType> = {
-        tags,
-        title,
-        description,
-        status,
-        meta,
-        lastModificationDate: new Date().toString(),
-      };
-      const { value } = await db.updateOne(_id, updater);
+    async updateExperiment(_, { _id, experiment }, { models }) {
+      const { value } = await models.experiment.updateOne(_id, experiment);
+      if (!value) throw new Error(`Updated failed to ${_id}`);
       return value;
     },
+    appendExperimentInput(_, { sampleId, experimentId }, { models }) {
+      return appendSample(models, sampleId, experimentId, 'input');
+    },
+    appendExperimentOutput(_, { sampleId, experimentId }, { models }) {
+      return appendSample(models, sampleId, experimentId, 'output');
+    },
 
-    appendExperimentInput: (...params) => appendSamples(params, 'input'),
-    appendExperimentOutput: (...params) => appendSamples(params, 'output'),
-
-    appendExperimentComponent: async (
+    async appendExperimentComponent(
       _,
-      {
-        componentId,
-        experimentId,
-      }: { componentId: string; experimentId: string },
-      { db }: { db: MongoClient },
-    ) => {
-      const components = new Component(db);
-      const component = await components.findById(componentId);
+      { componentId, experimentId },
+      { models },
+    ) {
+      const component = await models.component.findById(componentId);
       if (!component) {
         throw Error(`Component ${componentId} doesn't exist`);
       }
 
-      const experiments = new Experiment(db);
-      const experiment = await experiments.findById(experimentId);
+      const experiment = await models.experiment.findById(experimentId);
       if (!experiment) {
         throw Error(`Experiment ${experimentId} doesn't exist`);
       }
 
-      const { value } = await components.updateOne(componentId, {
+      const { value } = await models.component.updateOne(componentId, {
         parent: new ObjectId(experimentId),
       });
-      return value;
+      return value || null;
     },
   },
 };

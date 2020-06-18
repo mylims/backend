@@ -1,11 +1,8 @@
 import { Context } from '../context';
 import { Resolvers } from '../generated/graphql';
+import { notEmpty } from '../utils/resolvers';
 
 import { Component } from './component.model';
-
-function notEmpty<T>(value: T | null | undefined): value is T {
-  return value !== null && value !== undefined;
-}
 
 async function appendComponent(
   component: Component,

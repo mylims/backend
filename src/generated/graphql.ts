@@ -26,10 +26,7 @@ export interface Query {
   component?: Maybe<Component>;
   components?: Maybe<Array<Component>>;
   experiment?: Maybe<Experiment>;
-  experimentByCodeId?: Maybe<Experiment>;
-  experimentByOwner?: Maybe<Array<Experiment>>;
-  experimentByTag?: Maybe<Array<Experiment>>;
-  experimentByTitle?: Maybe<Array<Experiment>>;
+  experiments?: Maybe<Array<Experiment>>;
   kind?: Maybe<Kind>;
   kinds?: Maybe<Array<Kind>>;
   measurement?: Maybe<Measurement>;
@@ -55,23 +52,9 @@ export interface QueryExperimentArgs {
 }
 
 
-export interface QueryExperimentByCodeIdArgs {
-  codeId: Scalars['String'];
-}
-
-
-export interface QueryExperimentByOwnerArgs {
-  owner: Scalars['String'];
-}
-
-
-export interface QueryExperimentByTagArgs {
-  tag: Scalars['String'];
-}
-
-
-export interface QueryExperimentByTitleArgs {
-  title: Scalars['String'];
+export interface QueryExperimentsArgs {
+  page: Scalars['Int'];
+  filters: ExperimentFilters;
 }
 
 
@@ -226,13 +209,7 @@ export interface MutationUpdateComponentArgs {
 
 export interface MutationUpdateExperimentArgs {
   _id: Scalars['String'];
-  tags?: Maybe<Array<Scalars['String']>>;
-  title?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  status?: Maybe<Array<StatusInput>>;
-  meta?: Maybe<Scalars['JSON']>;
-  input?: Maybe<Array<Scalars['String']>>;
-  output?: Maybe<Array<Scalars['String']>>;
+  experiment: ExperimentInput;
 }
 
 
@@ -302,6 +279,7 @@ export interface Experiment {
 }
 
 export interface ExperimentInput {
+  codeId?: Maybe<Scalars['String']>;
   owners?: Maybe<Array<Scalars['String']>>;
   tags?: Maybe<Array<Scalars['String']>>;
   title: Scalars['String'];
@@ -310,6 +288,16 @@ export interface ExperimentInput {
   lastModificationDate?: Maybe<Scalars['String']>;
   status?: Maybe<Array<StatusInput>>;
   meta?: Maybe<Scalars['JSON']>;
+}
+
+export interface ExperimentFilters {
+  owners?: Maybe<Array<Scalars['String']>>;
+  tags?: Maybe<Array<Scalars['String']>>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  creationDate?: Maybe<Scalars['String']>;
+  lastModificationDate?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['String']>;
 }
 
 export interface Kind {
@@ -517,6 +505,7 @@ export type ResolversTypes = ResolversObject<{
   StatusInput: StatusInput;
   Experiment: ResolverTypeWrapper<Experiment>;
   ExperimentInput: ExperimentInput;
+  ExperimentFilters: ExperimentFilters;
   Kind: ResolverTypeWrapper<Kind>;
   KindInput: KindInput;
   KindFilters: KindFilters;
@@ -548,6 +537,7 @@ export type ResolversParentTypes = ResolversObject<{
   StatusInput: StatusInput;
   Experiment: Experiment;
   ExperimentInput: ExperimentInput;
+  ExperimentFilters: ExperimentFilters;
   Kind: Kind;
   KindInput: KindInput;
   KindFilters: KindFilters;
@@ -609,10 +599,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   component?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<QueryComponentArgs, '_id'>>;
   components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType, RequireFields<QueryComponentsArgs, 'page' | 'filters'>>;
   experiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentArgs, '_id'>>;
-  experimentByCodeId?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentByCodeIdArgs, 'codeId'>>;
-  experimentByOwner?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentByOwnerArgs, 'owner'>>;
-  experimentByTag?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentByTagArgs, 'tag'>>;
-  experimentByTitle?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentByTitleArgs, 'title'>>;
+  experiments?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentsArgs, 'page' | 'filters'>>;
   kind?: Resolver<Maybe<ResolversTypes['Kind']>, ParentType, ContextType, RequireFields<QueryKindArgs, '_id'>>;
   kinds?: Resolver<Maybe<Array<ResolversTypes['Kind']>>, ParentType, ContextType, RequireFields<QueryKindsArgs, 'page' | 'filters'>>;
   measurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<QueryMeasurementArgs, '_id'>>;
@@ -639,7 +626,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   removeComponentInput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentInputArgs, 'parentId' | 'childId'>>;
   removeComponentOutput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentOutputArgs, 'parentId' | 'childId'>>;
   updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id' | 'component'>>;
-  updateExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationUpdateExperimentArgs, '_id'>>;
+  updateExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationUpdateExperimentArgs, '_id' | 'experiment'>>;
   updateKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationUpdateKindArgs, '_id' | 'kind'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, '_id' | 'measurement'>>;
   updateSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationUpdateSampleArgs, '_id' | 'sample'>>;
@@ -778,6 +765,22 @@ export type ComponentDbObject = {
 export type StatusDbObject = {
   kind: string,
   date?: Maybe<string>,
+};
+
+export type ExperimentDbObject = {
+  _id: ObjectID,
+  codeId: string,
+  owners?: Maybe<Array<string>>,
+  tags?: Maybe<Array<string>>,
+  title: string,
+  description?: Maybe<string>,
+  creationDate: string,
+  lastModificationDate?: Maybe<string>,
+  status?: Maybe<Array<StatusDbObject>>,
+  meta?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+  input?: Maybe<Array<SampleDbObject['_id']>>,
+  output?: Maybe<Array<SampleDbObject['_id']>>,
+  components?: Maybe<Array<ComponentDbObject['_id']>>,
 };
 
 export type KindDbObject = {

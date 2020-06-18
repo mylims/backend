@@ -21,7 +21,6 @@ beforeAll(async () => {
   await models.kind.insertOne(kind);
   await models.component.insertOne(component);
   await models.measurement.insertOne(measurement);
-  await models.component.insertOne(component);
 });
 
 afterAll(async () => {
