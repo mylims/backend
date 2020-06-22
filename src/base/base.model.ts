@@ -78,7 +78,9 @@ export class Base<Model extends WithId> {
    * Find several occurrences
    * @param filters - MongoDB query object
    */
-  public async findMany(filters: FilterQuery<Model>): Promise<Model[] | null> {
+  public async findMany(
+    filters: FilterQuery<Model> | Record<string, ObjectID>,
+  ): Promise<Model[] | null> {
     return this.db.find<Model>(filters).toArray();
   }
 

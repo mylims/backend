@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectID } from 'mongodb';
 
 import { Base } from '../base/base.model';
 import { Measurement as MeasurementType } from '../generated/graphql';
@@ -9,6 +9,7 @@ export class Measurement extends Base<MeasurementType> {
   }
 
   public findByParentId(id: string) {
-    return this.findMany({ parent: id });
+    const sample = new ObjectID(id);
+    return this.findMany({ sample });
   }
 }
