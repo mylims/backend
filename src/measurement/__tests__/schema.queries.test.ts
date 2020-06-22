@@ -1,16 +1,21 @@
 import { gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 import { DocumentNode } from 'graphql';
 
-import { context } from '../../context';
 import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const server = createServer({ context });
-const { query } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
 
-afterAll(async () => server.stop());
+beforeAll(async () => {
+  const { server } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+});
 
 type Map = Record<string, unknown>;
 type Cases = Array<[DocumentNode, string, Map, Map, Map]>;

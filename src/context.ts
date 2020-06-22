@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb';
 
 import { Component } from './component/component.model';
-import { DbConnector } from './connector';
 import { Experiment } from './experiment/experiment.model';
 import { Kind } from './kind/kind.model';
 import { Measurement } from './measurement/measurement.model';
@@ -20,8 +19,12 @@ export interface Context {
   db: MongoClient;
 }
 
-export const context: () => Promise<Context> = async () => {
-  const db = await new DbConnector().connect();
+export interface Request {
+  db: MongoClient;
+}
+
+type ContextFunc = (req: Request) => Promise<Context>;
+export const context: ContextFunc = async ({ db }) => {
   return {
     models: {
       component: new Component(db),

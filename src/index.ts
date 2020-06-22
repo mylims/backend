@@ -1,13 +1,19 @@
 /* eslint-disable no-console */
-import { ApolloServer, Config } from 'apollo-server-fastify';
+import { ApolloServer } from 'apollo-server-fastify';
 import fastify from 'fastify';
 
-import { context } from './context';
+import { DbConnector } from './connector';
+import { context as contextFn } from './context';
 import { resolvers } from './resolvers';
 import { typeDefs } from './schemas';
 
-export function createServer(config: Config) {
-  return new ApolloServer({ typeDefs, resolvers, ...config });
+export async function createServer() {
+  const db = await new DbConnector().connect();
+  const context = await contextFn({ db });
+  return {
+    server: new ApolloServer({ typeDefs, resolvers, context }),
+    context,
+  };
 }
 
 /**
@@ -16,7 +22,7 @@ export function createServer(config: Config) {
  */
 async function createApp(port: number) {
   const app = fastify({ logger: true });
-  const server = createServer({ context });
+  const { server } = await createServer();
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.register(server.createHandler());

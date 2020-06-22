@@ -1,19 +1,26 @@
 import { gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 
-import { context } from '../../context';
+import { Models } from '../../context';
 import { createServer } from '../../index';
 
 // Mocked server
-const server = createServer({ context });
-const { query } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let models: Models;
+
+beforeAll(async () => {
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  models = context.models;
+});
 
 afterAll(async () => {
-  const {
-    models: { kind },
-  } = await context();
+  const { kind } = models;
   await kind.drop();
-  return server.stop();
 });
 
 // search kind by id

@@ -1,14 +1,18 @@
 import { gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { context } from '../../context';
+import { Models } from '../../context';
 import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const server = createServer({ context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
 
 const kindId = randomId(12);
 const kind = {
@@ -18,14 +22,16 @@ const kind = {
 };
 
 beforeAll(async () => {
-  const { models } = await context();
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
   await models.kind.insertOne(kind);
 });
 
 afterAll(async () => {
-  const { models } = await context();
   await models.kind.drop();
-  return server.stop();
 });
 
 const GET_ID = gql`
