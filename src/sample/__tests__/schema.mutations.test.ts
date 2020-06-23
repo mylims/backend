@@ -1,23 +1,28 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Sample, SampleType } from '../sample.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
+
+beforeAll(async () => {
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+});
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Sample(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  await models.sample.drop();
 });
 
 const GET_ID = gql`
@@ -39,8 +44,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateSample($id: String!, $description: String!) {
-    updateSample(_id: $id, description: $description) {
+  mutation updateSample($id: String!, $sample: SampleInput!) {
+    updateSample(_id: $id, sample: $sample) {
       _id
       description
     }
@@ -63,9 +68,9 @@ describe('Sample single searchers', () => {
     expect(data1.sample).toBeNull();
 
     // Insert sample
-    const sample: Partial<SampleType> = {
+    const sample = {
       title: 'test',
-      status: [{ kind: 'test', date: new Date().toString() }],
+      status: { kind: 'test', date: new Date().toString() },
     };
     const create = await mutate({
       mutation: CREATE,
@@ -84,7 +89,7 @@ describe('Sample single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, sample: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

@@ -1,19 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { DbConnector } from '../../connector';
-import { Kind } from '../../kind/kind.model';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Component, ComponentType } from '../component.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
 
 const kindId = randomId(12);
 const kind = {
@@ -23,18 +22,17 @@ const kind = {
 };
 
 beforeAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Kind(db);
-  await exp.insertOne(kind);
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+  await models.kind.insertOne(kind);
 });
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Component(db);
-  const kinds = new Kind(db);
-  await kinds.empty();
-  await exp.empty();
-  await dbConnection.disconnect();
+  await models.kind.drop();
+  await models.component.drop();
 });
 
 const GET_ID = gql`
@@ -54,8 +52,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateComponent($id: String!, $content: JSON!) {
-    updateComponent(_id: $id, content: $content) {
+  mutation updateComponent($id: String!, $component: ComponentInput!) {
+    updateComponent(_id: $id, component: $component) {
       _id
       content
     }
@@ -78,7 +76,7 @@ describe('Component single searchers', () => {
     expect(data1.component).toBeNull();
 
     // Insert component
-    const component: Partial<ComponentType> = { kind: kindId };
+    const component = { kind: kindId };
     const create = await mutate({
       mutation: CREATE,
       variables: { component },
@@ -95,7 +93,7 @@ describe('Component single searchers', () => {
     const content = { value: 'test update' };
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, content },
+      variables: { id, component: { content } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

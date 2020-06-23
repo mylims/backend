@@ -1,21 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { Component } from '../../component/component.model';
-import { DbConnector } from '../../connector';
-import { Kind } from '../../kind/kind.model';
-import { Measurement } from '../../measurement/measurement.model';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Sample } from '../sample.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
 
 const id = randomId(12);
 const _id = new ObjectID(id);
@@ -23,23 +20,21 @@ const kind = { _id, name: 'kind' };
 const component = { _id, kind: id };
 const measurement = { _id, title: 'measurement' };
 
-beforeEach(async () => {
-  const db = await dbConnection.connect();
-  await new Kind(db).insertOne(kind);
-  await new Component(db).insertOne(component);
-  await new Measurement(db).insertOne(measurement);
-});
-
-afterEach(async () => {
-  const db = await dbConnection.connect();
-  await new Sample(db).empty();
-  await new Component(db).empty();
-  await new Kind(db).empty();
-  await new Measurement(db).empty();
+beforeAll(async () => {
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+  await models.kind.insertOne(kind);
+  await models.component.insertOne(component);
+  await models.measurement.insertOne(measurement);
 });
 
 afterAll(async () => {
-  await dbConnection.disconnect();
+  await models.measurement.drop();
+  await models.component.drop();
+  await models.kind.drop();
 });
 
 const GET_ID = gql`

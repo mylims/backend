@@ -1,20 +1,18 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 import { ObjectID } from 'mongodb';
 
-import { Component } from '../../component/component.model';
-import { DbConnector } from '../../connector';
-import { Kind } from '../../kind/kind.model';
-import { resolvers } from '../../resolvers';
-import { Sample } from '../../sample/sample.model';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
 
 const id = randomId(12);
 const _id = new ObjectID(id);
@@ -23,18 +21,20 @@ const kind = { _id, name: 'kind' };
 const component = { _id, kind: id };
 
 beforeAll(async () => {
-  const db = await dbConnection.connect();
-  await new Sample(db).insertOne(sample);
-  await new Kind(db).insertOne(kind);
-  await new Component(db).insertOne(component);
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+  await models.kind.insertOne(kind);
+  await models.component.insertOne(component);
+  await models.sample.insertOne(sample);
 });
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  await new Sample(db).empty();
-  await new Component(db).empty();
-  await new Kind(db).empty();
-  await dbConnection.disconnect();
+  await models.kind.drop();
+  await models.component.drop();
+  await models.sample.drop();
 });
 
 const GET_ID = gql`

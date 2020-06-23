@@ -1,13 +1,14 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { ExperimentDbObject } from '../../generated/graphql';
 import { randomId } from '../../utils/fake';
 import { Experiment } from '../experiment.model';
 
 const connector = new DbConnector();
 const codeId = randomId(16);
 const id = randomId(24);
-const experimentTest = {
+const experimentTest: ExperimentDbObject = {
   _id: new ObjectID(id),
   codeId,
   owners: ['1'],
@@ -25,12 +26,12 @@ describe('test experiment model', () => {
   beforeAll(async () => {
     db = await connector.connect();
     const experiment = new Experiment(db);
-    await experiment.empty();
+    await experiment.drop();
   });
 
   afterAll(async () => {
     const experiment = new Experiment(db);
-    await experiment.empty();
+    await experiment.drop();
     await connector.disconnect();
   });
 
@@ -39,18 +40,12 @@ describe('test experiment model', () => {
     const experiment = new Experiment(db);
     expect(await experiment.getAll()).toHaveLength(0);
     expect(await experiment.findById(id)).toBeNull();
-    expect(await experiment.findByCodeId(codeId)).toBeNull();
-    expect(await experiment.findByOwner('1')).toHaveLength(0);
-    expect(await experiment.findByTag('test')).toHaveLength(0);
 
     // insert one experiment
     await experiment.insertOne(experimentTest);
     expect(await experiment.getAll()).toHaveLength(1);
     expect(await experiment.findById(id)).toStrictEqual(experimentTest);
     expect(await experiment.findById(randomId(12))).toBeNull();
-    expect(await experiment.findByCodeId(codeId)).toStrictEqual(experimentTest);
-    expect(await experiment.findByOwner('1')).toStrictEqual([experimentTest]);
-    expect(await experiment.findByTag('test')).toStrictEqual([experimentTest]);
 
     // unique id
     await expect(experiment.insertOne(experimentTest)).rejects.toThrow(
@@ -58,7 +53,7 @@ describe('test experiment model', () => {
     );
 
     // delete all
-    await experiment.empty();
+    await experiment.drop();
     expect(await experiment.getAll()).toHaveLength(0);
     expect(await experiment.findById(id)).toBeNull();
   });

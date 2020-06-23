@@ -1,12 +1,13 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
 import { DbConnector } from '../../connector';
+import { SampleDbObject } from '../../generated/graphql';
 import { randomId } from '../../utils/fake';
-import { Sample, SampleType } from '../sample.model';
+import { Sample } from '../sample.model';
 
 const connector = new DbConnector();
 const id = randomId(24);
-const sampleTest: SampleType = {
+const sampleTest: SampleDbObject = {
   _id: new ObjectID(id),
   codeId: id,
   title: 'test',
@@ -39,13 +40,11 @@ describe('test sample model', () => {
     const sample = new Sample(db);
     expect(await sample.getAll()).toHaveLength(0);
     expect(await sample.findById(id)).toBeNull();
-    expect(await sample.findByCodeId(id)).toBeNull();
 
     // insert one sample
     await sample.insertOne(sampleTest);
     expect(await sample.getAll()).toHaveLength(1);
     expect(await sample.findById(id)).toStrictEqual(sampleTest);
-    expect(await sample.findByCodeId(id)).toStrictEqual(sampleTest);
     expect(await sample.findById(randomId(12))).toBeNull();
 
     // unique id
@@ -54,7 +53,7 @@ describe('test sample model', () => {
     );
 
     // delete all
-    await sample.empty();
+    await sample.drop();
     expect(await sample.getAll()).toHaveLength(0);
     expect(await sample.findById(id)).toBeNull();
   });

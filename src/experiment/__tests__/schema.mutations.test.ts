@@ -1,23 +1,28 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Experiment } from '../experiment.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
+
+beforeAll(async () => {
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+});
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Experiment(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  await models.experiment.drop();
 });
 
 const GET_ID = gql`
@@ -39,8 +44,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateExperiment($id: String!, $description: String!) {
-    updateExperiment(_id: $id, description: $description) {
+  mutation updateExperiment($id: String!, $experiment: ExperimentInput!) {
+    updateExperiment(_id: $id, experiment: $experiment) {
       _id
       description
     }
@@ -80,7 +85,7 @@ describe('Experiment single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, experiment: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

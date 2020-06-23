@@ -1,147 +1,106 @@
-import { IResolvers } from 'graphql-tools';
-import { MongoClient } from 'mongodb';
+import { Context } from '../context';
+import { Resolvers } from '../generated/graphql';
+import { notEmpty } from '../utils/resolvers';
 
-import { Kind } from '../kind/kind.model';
+import { Component } from './component.model';
 
-import { Component, ComponentType } from './component.model';
-
-/**
- * Simplifies the resolver manipulation
- * @param params - Resolver parameters
- */
-function componentHelper(
-  params: [unknown, { [k: string]: unknown }, { db: MongoClient }, unknown],
-): { [k: string]: unknown; db: Component } {
-  return { ...params[1], db: new Component(params[2].db) };
-}
-
-/**
- * Simplifies sample appending
- * @param params - Resolver parameters
- * @param key - Field to be appended
- */
 async function appendComponent(
-  params: [
-    unknown,
-    { parentId: string; childId: string },
-    { db: MongoClient },
-    unknown,
-  ],
+  component: Component,
+  parentId: string,
+  childId: string,
   key: 'input' | 'output',
 ) {
-  const { parentId, childId } = params[1];
-  const { db } = params[2];
-
-  const child = await new Component(db).findById(childId);
-  if (child == null) {
-    throw Error(`Component ${childId} doesn't exist`);
+  const child = await component.findById(childId);
+  if (!child) {
+    throw new Error(`Component ${childId} doesn't exist`);
   }
 
-  const ans = await new Component(db).appendTo(parentId, { [key]: childId });
-  return ans && ans.value;
+  const ans = await component.append(parentId, { [key]: childId });
+  if (!ans || !ans.value) {
+    throw new Error(`Append ${childId} to ${parentId} failed`);
+  }
+  return ans.value;
 }
 
 async function removeComponent(
-  params: [
-    unknown,
-    { parentId: string; childId: string },
-    { db: MongoClient },
-    unknown,
-  ],
+  component: Component,
+  parentId: string,
+  childId: string,
   key: 'input' | 'output',
 ) {
-  const { parentId, childId } = params[1];
-  const { db } = params[2];
-
-  const parent = await new Component(db).findById(parentId);
-  if (parent === null) {
-    throw Error(`Component ${parentId} doesn't exist`);
+  const child = await component.findById(childId);
+  if (!child) {
+    throw new Error(`Component ${childId} doesn't exist`);
   }
 
-  const ans = await new Component(db).removeTo(parentId, { [key]: childId });
-  return ans && ans.value;
-}
-
-/**
- * Simplifies interaction with kind
- * @param params - Resolver parameters
- */
-function fetchKind(
-  params: [
-    { kind: string },
-    Partial<ComponentType>,
-    { db: MongoClient },
-    unknown,
-  ],
-) {
-  const kinds = new Kind(params[2].db);
-  const { kind } = params[0];
-  return kinds.findById(kind);
-}
-
-/**
- * Simplifies interaction with linked components
- * @param params - Resolver parameters
- * @param key - Searched field
- */
-function fetchComponent(
-  params: [
-    { input?: string[]; output?: string[] },
-    Partial<ComponentType>,
-    { db: MongoClient },
-    unknown,
-  ],
-  key: 'input' | 'output',
-) {
-  const components = new Component(params[2].db);
-  const list = params[0][key];
-  if (list) {
-    const promComponent = list.map((id: string) => components.findById(id));
-    return Promise.all(promComponent);
-  } else {
-    return null;
+  const ans = await component.pop(parentId, { [key]: childId });
+  if (!ans || !ans.value) {
+    throw new Error(`Remove ${childId} to ${parentId} failed`);
   }
+  return ans.value;
 }
 
-export const componentResolver: IResolvers = {
+export const componentResolver: Resolvers<Context> = {
   Query: {
-    // Search component by id
-    component: (...params) => {
-      const { db, _id } = componentHelper(params);
-      return db.findById(_id as string);
+    component(_, { _id }, { models: { component } }) {
+      return component.findById(_id);
+    },
+    components(_, { page, filters }, { models: { component } }) {
+      return component.findPaginated(page, filters);
     },
   },
 
   Component: {
-    kind: (...params) => fetchKind(params),
-    input: (...params) => fetchComponent(params, 'input'),
-    output: (...params) => fetchComponent(params, 'output'),
+    kind({ kind }, _, { models }) {
+      return models.kind.findById(kind);
+    },
+    async input({ input }, _, { models }) {
+      if (input) {
+        const promComponent = input.map((id) => models.component.findById(id));
+        const components = await Promise.all(promComponent);
+        return components.filter(notEmpty);
+      } else {
+        return [];
+      }
+    },
+    async output({ output }, _, { models }) {
+      if (output) {
+        const promComponent = output.map((id) => models.component.findById(id));
+        const components = await Promise.all(promComponent);
+        return components.filter(notEmpty);
+      } else {
+        return null;
+      }
+    },
   },
 
   Mutation: {
-    createComponent: async (_, { component }, { db }) => {
-      const kind = await new Kind(db).findById(component.kind);
+    async createComponent(_, { component }, { models }) {
+      const kind = await models.kind.findById(component.kind);
       if (kind === null) {
-        throw Error(`Kind ${component.kind} doesn't exists`);
+        throw new Error(`Kind ${component.kind} doesn't exists`);
       }
-      const inserted = await new Component(db).insertOne(component);
+      const inserted = await models.component.insertOne(component);
       return inserted.result && inserted.ops[0];
     },
-    updateComponent: async (...params) => {
-      const { db, _id, kind, content } = componentHelper(params) as {
-        db: Component;
-        _id: string;
-        kind: string;
-        content: object;
-      };
-      const updater: Partial<ComponentType> = { kind, content };
-      const { value } = await db.updateOne(_id, updater);
+    async updateComponent(_, { _id, component }, { models }) {
+      const { value } = await models.component.updateOne(_id, component);
+      if (!value) throw new Error(`Updated failed to ${_id}`);
       return value;
     },
 
-    appendComponentInput: (...params) => appendComponent(params, 'input'),
-    appendComponentOutput: (...params) => appendComponent(params, 'output'),
-    removeComponentInput: (...params) => removeComponent(params, 'input'),
-    removeComponentOutput: (...params) => removeComponent(params, 'output'),
+    appendComponentInput(_, { parentId, childId }, { models: { component } }) {
+      return appendComponent(component, parentId, childId, 'input');
+    },
+    appendComponentOutput(_, { parentId, childId }, { models: { component } }) {
+      return appendComponent(component, parentId, childId, 'output');
+    },
+
+    removeComponentInput(_, { parentId, childId }, { models: { component } }) {
+      return removeComponent(component, parentId, childId, 'input');
+    },
+    removeComponentOutput(_, { parentId, childId }, { models: { component } }) {
+      return removeComponent(component, parentId, childId, 'output');
+    },
   },
 };

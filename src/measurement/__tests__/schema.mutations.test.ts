@@ -1,23 +1,28 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { Models } from '../../context';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
-import { Measurement, MeasurementType } from '../measurement.model';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query, mutate } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+let mutate: ApolloServerTestClient['mutate'];
+let models: Models;
+
+beforeAll(async () => {
+  const { server, context } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+  mutate = test.mutate;
+  models = context.models;
+});
 
 afterAll(async () => {
-  const db = await dbConnection.connect();
-  const exp = new Measurement(db);
-  await exp.empty();
-  await dbConnection.disconnect();
+  await models.measurement.drop();
 });
 
 const GET_ID = gql`
@@ -39,8 +44,8 @@ const CREATE = gql`
 `;
 
 const UPDATE = gql`
-  mutation updateMeasurement($id: String!, $description: String!) {
-    updateMeasurement(_id: $id, description: $description) {
+  mutation updateMeasurement($id: String!, $measurement: MeasurementInput!) {
+    updateMeasurement(_id: $id, measurement: $measurement) {
       _id
       description
     }
@@ -63,9 +68,9 @@ describe('Measurement single searchers', () => {
     expect(data1.measurement).toBeNull();
 
     // Insert measurement
-    const measurement: Partial<MeasurementType> = {
+    const measurement = {
       title: 'test',
-      status: [{ kind: 'test', date: new Date().toString() }],
+      status: { kind: 'test', date: new Date().toString() },
     };
     const create = await mutate({
       mutation: CREATE,
@@ -84,7 +89,7 @@ describe('Measurement single searchers', () => {
     const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, description },
+      variables: { id, measurement: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();

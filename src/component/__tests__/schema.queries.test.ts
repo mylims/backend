@@ -1,16 +1,20 @@
-import { ApolloServer, gql } from 'apollo-server-fastify';
-import { createTestClient } from 'apollo-server-testing';
+import { gql } from 'apollo-server-fastify';
+import {
+  createTestClient,
+  ApolloServerTestClient,
+} from 'apollo-server-testing';
 
-import { DbConnector } from '../../connector';
-import { resolvers } from '../../resolvers';
-import { typeDefs } from '../../schemas';
+import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
-const dbConnection = new DbConnector();
-const context = async () => ({ db: await dbConnection.connect() });
-const server = new ApolloServer({ typeDefs, resolvers, context });
-const { query } = createTestClient(server);
+let query: ApolloServerTestClient['query'];
+
+beforeAll(async () => {
+  const { server } = await createServer();
+  const test = createTestClient(server);
+  query = test.query;
+});
 
 // search component by id
 const GET_ID = gql`
@@ -22,8 +26,6 @@ const GET_ID = gql`
 `;
 
 describe('Kind', () => {
-  afterAll(async () => dbConnection.disconnect());
-
   describe('Kind by id', () => {
     it('empty case', async () => {
       const { data, errors } = await query({

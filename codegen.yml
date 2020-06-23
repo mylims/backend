@@ -1,0 +1,13 @@
+overwrite: true
+schema: src/**/*.schema.ts
+generates:
+  src/generated/graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
+      - 'typescript-mongodb'
+    config:
+      useIndexSignature: true
+      declarationKind: 'interface'
+      scalars:
+        JSON: 'Record<string, unknown> | Record<string, unknown>[]'
