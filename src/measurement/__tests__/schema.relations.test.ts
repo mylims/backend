@@ -3,7 +3,7 @@ import {
   createTestClient,
   ApolloServerTestClient,
 } from 'apollo-server-testing';
-import { ObjectID } from 'mongodb';
+import { ObjectID, MongoClient } from 'mongodb';
 
 import { Models } from '../../context';
 import { createServer } from '../../index';
@@ -13,6 +13,7 @@ import { randomId } from '../../utils/fake';
 let query: ApolloServerTestClient['query'];
 let mutate: ApolloServerTestClient['mutate'];
 let models: Models;
+let db: MongoClient;
 
 const id = randomId(12);
 const _id = new ObjectID(id);
@@ -25,6 +26,7 @@ beforeAll(async () => {
   query = test.query;
   mutate = test.mutate;
   models = context.models;
+  db = context.db;
   await models.kind.insertOne(kind);
   await models.component.insertOne(component);
 });
@@ -33,6 +35,7 @@ afterAll(async () => {
   await models.measurement.drop();
   await models.component.drop();
   await models.kind.drop();
+  return db.close();
 });
 
 const GET_ID = gql`

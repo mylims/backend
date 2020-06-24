@@ -4,18 +4,23 @@ import {
   ApolloServerTestClient,
 } from 'apollo-server-testing';
 import { DocumentNode } from 'graphql';
+import { MongoClient } from 'mongodb';
 
 import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
 // Mocked server
 let query: ApolloServerTestClient['query'];
+let db: MongoClient;
 
 beforeAll(async () => {
-  const { server } = await createServer();
+  const { server, context } = await createServer();
   const test = createTestClient(server);
   query = test.query;
+  db = context.db;
 });
+
+afterAll(() => db.close());
 
 type Map = Record<string, unknown>;
 type Cases = Array<[DocumentNode, string, Map, Map, Map]>;
