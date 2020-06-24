@@ -3,6 +3,7 @@ import {
   createTestClient,
   ApolloServerTestClient,
 } from 'apollo-server-testing';
+import { MongoClient } from 'mongodb';
 
 import { Models } from '../../context';
 import { createServer } from '../../index';
@@ -10,17 +11,20 @@ import { createServer } from '../../index';
 // Mocked server
 let query: ApolloServerTestClient['query'];
 let models: Models;
+let db: MongoClient;
 
 beforeAll(async () => {
   const { server, context } = await createServer();
   const test = createTestClient(server);
   query = test.query;
   models = context.models;
+  db = context.db;
 });
 
 afterAll(async () => {
   const { kind } = models;
   await kind.drop();
+  return db.close();
 });
 
 // search kind by id
