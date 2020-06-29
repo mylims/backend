@@ -52,6 +52,7 @@
     "graphql": "~15.1.0",
     "graphql-tools": "~6.0.10",
     "graphql-type-json": "~0.3.2",
+    "jsonwebtoken": "~8.5.1",
     "lodash.merge": "~4.6.2",
     "mongodb": "~3.5.9"
   },
@@ -63,6 +64,7 @@
     "@shelf/jest-mongodb": "~1.1.5",
     "@types/graphql-type-json": "~0.3.2",
     "@types/jest": "~26.0.0",
+    "@types/jsonwebtoken": "~8.5.0",
     "@types/lodash.merge": "~4.6.6",
     "@types/mongodb": "~3.5.20",
     "@types/ws": "~7.2.5",

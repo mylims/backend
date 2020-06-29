@@ -5,6 +5,7 @@ import { Experiment } from './experiment/experiment.model';
 import { Kind } from './kind/kind.model';
 import { Measurement } from './measurement/measurement.model';
 import { Sample } from './sample/sample.model';
+import { User } from './user/user.model';
 
 export interface Models {
   component: Component;
@@ -12,6 +13,7 @@ export interface Models {
   kind: Kind;
   measurement: Measurement;
   sample: Sample;
+  user: User;
 }
 
 export interface Context {
@@ -32,6 +34,7 @@ export const context: ContextFunc = async ({ db }) => {
       kind: new Kind(db),
       measurement: new Measurement(db),
       sample: new Sample(db),
+      user: new User(db),
     },
     db,
   };

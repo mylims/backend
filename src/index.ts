@@ -4,14 +4,25 @@ import fastify from 'fastify';
 
 import { DbConnector } from './connector';
 import { context as contextFn } from './context';
+import { AuthDirective } from './directives';
 import { resolvers } from './resolvers';
 import { typeDefs } from './schemas';
+import { getUserFromToken } from './utils/auth';
 
 export async function createServer() {
   const db = await new DbConnector().connect();
   const context = await contextFn({ db });
   return {
-    server: new ApolloServer({ typeDefs, resolvers, context }),
+    server: new ApolloServer({
+      typeDefs,
+      resolvers,
+      schemaDirectives: { auth: AuthDirective },
+      context({ req }) {
+        const token: string = req?.headers?.authorization;
+        const user = getUserFromToken(token);
+        return { ...context, user };
+      },
+    }),
     context,
   };
 }

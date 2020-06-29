@@ -20,6 +20,7 @@ export interface Scalars {
 
 
 
+
 export interface Query {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']>;
@@ -33,6 +34,8 @@ export interface Query {
   measurements?: Maybe<Array<Measurement>>;
   sample?: Maybe<Sample>;
   samples?: Maybe<Array<Sample>>;
+  user?: Maybe<User>;
+  users?: Maybe<Array<User>>;
 }
 
 
@@ -90,6 +93,17 @@ export interface QuerySamplesArgs {
   filters: SampleFilters;
 }
 
+
+export interface QueryUserArgs {
+  _id: Scalars['String'];
+}
+
+
+export interface QueryUsersArgs {
+  page: Scalars['Int'];
+  filters: UserFilters;
+}
+
 export interface Mutation {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']>;
@@ -106,6 +120,7 @@ export interface Mutation {
   createKind: Kind;
   createMeasurement?: Maybe<Measurement>;
   createSample?: Maybe<Sample>;
+  createUser: User;
   removeComponentInput?: Maybe<Component>;
   removeComponentOutput?: Maybe<Component>;
   updateComponent?: Maybe<Component>;
@@ -113,6 +128,7 @@ export interface Mutation {
   updateKind: Kind;
   updateMeasurement?: Maybe<Measurement>;
   updateSample?: Maybe<Sample>;
+  updateUser: User;
 }
 
 
@@ -189,6 +205,11 @@ export interface MutationCreateSampleArgs {
 }
 
 
+export interface MutationCreateUserArgs {
+  user: UserInput;
+}
+
+
 export interface MutationRemoveComponentInputArgs {
   parentId: Scalars['String'];
   childId: Scalars['String'];
@@ -228,6 +249,12 @@ export interface MutationUpdateMeasurementArgs {
 export interface MutationUpdateSampleArgs {
   _id: Scalars['String'];
   sample: SampleInput;
+}
+
+
+export interface MutationUpdateUserArgs {
+  _id: Scalars['String'];
+  user: UserInput;
 }
 
 export interface Component {
@@ -410,6 +437,33 @@ export interface SampleFilters {
   summary?: Maybe<Scalars['String']>;
 }
 
+export enum Role {
+  Admin = 'ADMIN',
+  GroupAdmin = 'GROUP_ADMIN',
+  Member = 'MEMBER'
+}
+
+export interface User {
+  __typename?: 'User';
+  _id: Scalars['String'];
+  name: Scalars['String'];
+  email: Scalars['String'];
+  role: Role;
+  groups?: Maybe<Array<Scalars['String']>>;
+}
+
+export interface UserInput {
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  role?: Maybe<Role>;
+}
+
+export interface UserFilters {
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  role?: Maybe<Role>;
+}
+
 export interface AdditionalEntityFields {
   path?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -520,6 +574,10 @@ export type ResolversTypes = ResolversObject<{
   Sample: ResolverTypeWrapper<Sample>;
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
+  Role: Role;
+  User: ResolverTypeWrapper<User>;
+  UserInput: UserInput;
+  UserFilters: UserFilters;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 }>;
@@ -552,9 +610,16 @@ export type ResolversParentTypes = ResolversObject<{
   Sample: Sample;
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
+  User: User;
+  UserInput: UserInput;
+  UserFilters: UserFilters;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: Scalars['Boolean'];
 }>;
+
+export type AuthDirectiveArgs = {   role?: Maybe<Role>; };
+
+export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type UnionDirectiveArgs = {   discriminatorField?: Maybe<Scalars['String']>;
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>; };
@@ -607,6 +672,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   measurements?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
   sample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleArgs, '_id'>>;
   samples?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType, RequireFields<QuerySamplesArgs, 'page' | 'filters'>>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, '_id'>>;
+  users?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'page' | 'filters'>>;
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
@@ -624,6 +691,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationCreateKindArgs, 'kind'>>;
   createMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'measurement'>>;
   createSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationCreateSampleArgs, 'sample'>>;
+  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'user'>>;
   removeComponentInput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentInputArgs, 'parentId' | 'childId'>>;
   removeComponentOutput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentOutputArgs, 'parentId' | 'childId'>>;
   updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id' | 'component'>>;
@@ -631,6 +699,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationUpdateKindArgs, '_id' | 'kind'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, '_id' | 'measurement'>>;
   updateSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationUpdateSampleArgs, '_id' | 'sample'>>;
+  updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, '_id' | 'user'>>;
 }>;
 
 export type ComponentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = ResolversObject<{
@@ -716,6 +785,15 @@ export type SampleResolvers<ContextType = any, ParentType extends ResolversParen
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  groups?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
   JSON?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
@@ -728,6 +806,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   SampleComment?: SampleCommentResolvers<ContextType>;
   SampleSummary?: SampleSummaryResolvers<ContextType>;
   Sample?: SampleResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
 }>;
 
 
@@ -737,6 +816,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
  */
 export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = ResolversObject<{
+  auth?: AuthDirectiveResolver<any, any, ContextType>;
   union?: UnionDirectiveResolver<any, any, ContextType>;
   abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
   entity?: EntityDirectiveResolver<any, any, ContextType>;
@@ -827,4 +907,12 @@ export type SampleDbObject = {
   summary?: Maybe<Array<SampleSummaryDbObject>>,
   components?: Maybe<Array<ComponentDbObject['_id']>>,
   measurements?: Maybe<Array<MeasurementDbObject['_id']>>,
+};
+
+export type UserDbObject = {
+  _id: ObjectID,
+  name: string,
+  email: string,
+  role: string,
+  groups?: Maybe<Array<string>>,
 };

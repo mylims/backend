@@ -1,6 +1,8 @@
 import { gql } from 'apollo-server-fastify';
 
 export const baseSchema = gql`
+  directive @auth(role: Role) on FIELD_DEFINITION
+
   # Allows the use of JSONs
   scalar JSON
 

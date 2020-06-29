@@ -6,6 +6,7 @@ import { experimentSchema } from './experiment/experiment.schema';
 import { kindSchema } from './kind/kind.schema';
 import { measurementSchema } from './measurement/measurement.schema';
 import { sampleSchema } from './sample/sample.schema';
+import { userSchema } from './user/user.schema';
 
 export const typeDefs = [
   DIRECTIVES,
@@ -15,4 +16,5 @@ export const typeDefs = [
   kindSchema,
   measurementSchema,
   sampleSchema,
+  userSchema,
 ];
