@@ -10,16 +10,11 @@ export class User extends Base<UserType> {
   }
 
   public async signin(email: string, password: string) {
-    const user = await this.findOne({
-      email,
-    });
+    const user = await this.findOne({ email });
     if (!user || !user.salt) return null;
     const verify = hashing(password, user.salt);
-    const token = createToken({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    });
+    const { name, role } = user;
+    const token = createToken({ name, role, email: user.email });
     return user.hash === verify ? { token, user } : null;
   }
 }
