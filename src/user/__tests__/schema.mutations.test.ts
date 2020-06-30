@@ -6,7 +6,7 @@ import {
 import { MongoClient } from 'mongodb';
 
 import { Models } from '../../context';
-import { User as UserType } from '../../generated/graphql';
+import { UserInput } from '../../generated/graphql';
 import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
@@ -43,8 +43,11 @@ const GET_ID = gql`
 const CREATE = gql`
   mutation createUser($user: UserInput!) {
     createUser(user: $user) {
-      _id
-      name
+      token
+      user {
+        _id
+        name
+      }
     }
   }
 `;
@@ -74,9 +77,10 @@ describe('User single searchers', () => {
     expect(data1.user).toBeNull();
 
     // Insert user
-    const user: Partial<UserType> = {
+    const user: UserInput = {
       name: 'test',
       email: 'test@test.io',
+      password: 'test',
     };
     const create = await mutate({
       mutation: CREATE,
@@ -87,11 +91,12 @@ describe('User single searchers', () => {
     expect(create.data).not.toBeNull();
     const data2 = create.data || {};
     expect(data2.createUser).not.toBeUndefined();
-    expect(data2.createUser).toHaveProperty('_id');
-    expect(data2.createUser.name).toBe('test');
+    expect(data2.createUser).toHaveProperty('token');
+    expect(data2.createUser.user).toHaveProperty('_id');
+    expect(data2.createUser.user.name).toBe('test');
 
     // Update user
-    const id = data2.createUser._id;
+    const id = data2.createUser.user._id;
     const name = 'test update';
     const update = await mutate({
       mutation: UPDATE,

@@ -34,6 +34,7 @@ export interface Query {
   measurements?: Maybe<Array<Measurement>>;
   sample?: Maybe<Sample>;
   samples?: Maybe<Array<Sample>>;
+  signin?: Maybe<AuthUser>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
 }
@@ -94,6 +95,12 @@ export interface QuerySamplesArgs {
 }
 
 
+export interface QuerySigninArgs {
+  email: Scalars['String'];
+  password: Scalars['String'];
+}
+
+
 export interface QueryUserArgs {
   _id: Scalars['String'];
 }
@@ -120,7 +127,7 @@ export interface Mutation {
   createKind: Kind;
   createMeasurement?: Maybe<Measurement>;
   createSample?: Maybe<Sample>;
-  createUser: User;
+  createUser: AuthUser;
   removeComponentInput?: Maybe<Component>;
   removeComponentOutput?: Maybe<Component>;
   updateComponent?: Maybe<Component>;
@@ -449,12 +456,21 @@ export interface User {
   name: Scalars['String'];
   email: Scalars['String'];
   role: Role;
+  salt?: Maybe<Scalars['String']>;
+  hash?: Maybe<Scalars['String']>;
   groups?: Maybe<Array<Scalars['String']>>;
+}
+
+export interface AuthUser {
+  __typename?: 'AuthUser';
+  token: Scalars['String'];
+  user: User;
 }
 
 export interface UserInput {
   name?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
   role?: Maybe<Role>;
 }
 
@@ -576,6 +592,7 @@ export type ResolversTypes = ResolversObject<{
   SampleFilters: SampleFilters;
   Role: Role;
   User: ResolverTypeWrapper<User>;
+  AuthUser: ResolverTypeWrapper<AuthUser>;
   UserInput: UserInput;
   UserFilters: UserFilters;
   AdditionalEntityFields: AdditionalEntityFields;
@@ -611,6 +628,7 @@ export type ResolversParentTypes = ResolversObject<{
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
   User: User;
+  AuthUser: AuthUser;
   UserInput: UserInput;
   UserFilters: UserFilters;
   AdditionalEntityFields: AdditionalEntityFields;
@@ -672,6 +690,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   measurements?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
   sample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleArgs, '_id'>>;
   samples?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType, RequireFields<QuerySamplesArgs, 'page' | 'filters'>>;
+  signin?: Resolver<Maybe<ResolversTypes['AuthUser']>, ParentType, ContextType, RequireFields<QuerySigninArgs, 'email' | 'password'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, '_id'>>;
   users?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'page' | 'filters'>>;
 }>;
@@ -691,7 +710,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationCreateKindArgs, 'kind'>>;
   createMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'measurement'>>;
   createSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationCreateSampleArgs, 'sample'>>;
-  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'user'>>;
+  createUser?: Resolver<ResolversTypes['AuthUser'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'user'>>;
   removeComponentInput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentInputArgs, 'parentId' | 'childId'>>;
   removeComponentOutput?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationRemoveComponentOutputArgs, 'parentId' | 'childId'>>;
   updateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationUpdateComponentArgs, '_id' | 'component'>>;
@@ -790,7 +809,15 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  salt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hash?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   groups?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type AuthUserResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthUser'] = ResolversParentTypes['AuthUser']> = ResolversObject<{
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -807,6 +834,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   SampleSummary?: SampleSummaryResolvers<ContextType>;
   Sample?: SampleResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  AuthUser?: AuthUserResolvers<ContextType>;
 }>;
 
 
@@ -914,5 +942,7 @@ export type UserDbObject = {
   name: string,
   email: string,
   role: string,
+  salt?: Maybe<string>,
+  hash?: Maybe<string>,
   groups?: Maybe<Array<string>>,
 };
