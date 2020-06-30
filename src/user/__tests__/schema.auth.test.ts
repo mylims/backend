@@ -6,8 +6,8 @@ import {
 import { MongoClient } from 'mongodb';
 
 import { Models } from '../../context';
-import { createServer } from '../../index';
 import { UserInput } from '../../generated/graphql';
+import { createServer } from '../../index';
 
 // Mocked server
 let query: ApolloServerTestClient['query'];

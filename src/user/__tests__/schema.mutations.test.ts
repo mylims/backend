@@ -17,7 +17,7 @@ let models: Models;
 let db: MongoClient;
 
 beforeAll(async () => {
-  const { server, context } = await createServer();
+  const { server, context } = await createServer(true);
   const test = createTestClient(server);
   query = test.query;
   mutate = test.mutate;

@@ -9,7 +9,7 @@ import { resolvers } from './resolvers';
 import { typeDefs } from './schemas';
 import { getUserFromToken } from './utils/auth';
 
-export async function createServer() {
+export async function createServer(test?: boolean) {
   const db = await new DbConnector().connect();
   const context = await contextFn({ db });
   return {
@@ -19,7 +19,7 @@ export async function createServer() {
       schemaDirectives: { auth: AuthDirective },
       context({ req }) {
         const token: string = req?.headers?.authorization;
-        const user = getUserFromToken(token);
+        const user = test ? { role: 'ADMIN' } : getUserFromToken(token);
         return { ...context, user };
       },
     }),
