@@ -37,7 +37,10 @@
   "homepage": "https://github.com/mylims/backend#readme",
   "jest": {
     "preset": "./jest.config.js",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/directives.ts"
+    ]
   },
   "prettier": {
     "arrowParens": "always",

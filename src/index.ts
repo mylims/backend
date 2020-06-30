@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* istanbul ignore file */
 import { ApolloServer } from 'apollo-server-fastify';
 import fastify from 'fastify';
 
