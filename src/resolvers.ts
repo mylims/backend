@@ -8,6 +8,7 @@ import { Resolvers } from './generated/graphql';
 import { kindResolver } from './kind/kind.resolver';
 import { measurementResolver } from './measurement/measurement.resolver';
 import { sampleResolver } from './sample/sample.resolver';
+import { userResolver } from './user/user.resolver';
 
 export const resolvers: Resolvers<Context> = merge(
   { JSON: GraphQLJSON },
@@ -16,4 +17,5 @@ export const resolvers: Resolvers<Context> = merge(
   kindResolver,
   measurementResolver,
   sampleResolver,
+  userResolver,
 );
