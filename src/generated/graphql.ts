@@ -28,6 +28,8 @@ export interface Query {
   components?: Maybe<Array<Component>>;
   experiment?: Maybe<Experiment>;
   experiments?: Maybe<Array<Experiment>>;
+  file?: Maybe<File>;
+  files?: Maybe<Array<File>>;
   kind?: Maybe<Kind>;
   kinds?: Maybe<Array<Kind>>;
   measurement?: Maybe<Measurement>;
@@ -59,6 +61,17 @@ export interface QueryExperimentArgs {
 export interface QueryExperimentsArgs {
   page: Scalars['Int'];
   filters: ExperimentFilters;
+}
+
+
+export interface QueryFileArgs {
+  _id: Scalars['String'];
+}
+
+
+export interface QueryFilesArgs {
+  page: Scalars['Int'];
+  filters: FileFilters;
 }
 
 
@@ -124,6 +137,7 @@ export interface Mutation {
   appendSampleMeasurement?: Maybe<Measurement>;
   createComponent?: Maybe<Component>;
   createExperiment?: Maybe<Experiment>;
+  createFile?: Maybe<File>;
   createKind: Kind;
   createMeasurement?: Maybe<Measurement>;
   createSample?: Maybe<Sample>;
@@ -194,6 +208,11 @@ export interface MutationCreateComponentArgs {
 
 export interface MutationCreateExperimentArgs {
   experiment: ExperimentInput;
+}
+
+
+export interface MutationCreateFileArgs {
+  file: FileInput;
 }
 
 
@@ -333,6 +352,29 @@ export interface ExperimentFilters {
   creationDate?: Maybe<Scalars['String']>;
   lastModificationDate?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+}
+
+export interface File {
+  __typename?: 'File';
+  _id: Scalars['String'];
+  filename: Scalars['String'];
+  hashname: Scalars['String'];
+  encoding: Scalars['String'];
+  mimetype: Scalars['String'];
+  creationDate: Scalars['String'];
+  signedUrl: Scalars['String'];
+}
+
+export interface FileInput {
+  filename: Scalars['String'];
+  hashname: Scalars['String'];
+  encoding: Scalars['String'];
+  mimetype: Scalars['String'];
+}
+
+export interface FileFilters {
+  filename?: Maybe<Scalars['String']>;
+  mimetype?: Maybe<Scalars['String']>;
 }
 
 export interface Kind {
@@ -577,6 +619,9 @@ export type ResolversTypes = ResolversObject<{
   Experiment: ResolverTypeWrapper<Experiment>;
   ExperimentInput: ExperimentInput;
   ExperimentFilters: ExperimentFilters;
+  File: ResolverTypeWrapper<File>;
+  FileInput: FileInput;
+  FileFilters: FileFilters;
   Kind: ResolverTypeWrapper<Kind>;
   KindInput: KindInput;
   KindFilters: KindFilters;
@@ -614,6 +659,9 @@ export type ResolversParentTypes = ResolversObject<{
   Experiment: Experiment;
   ExperimentInput: ExperimentInput;
   ExperimentFilters: ExperimentFilters;
+  File: File;
+  FileInput: FileInput;
+  FileFilters: FileFilters;
   Kind: Kind;
   KindInput: KindInput;
   KindFilters: KindFilters;
@@ -684,6 +732,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType, RequireFields<QueryComponentsArgs, 'page' | 'filters'>>;
   experiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentArgs, '_id'>>;
   experiments?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentsArgs, 'page' | 'filters'>>;
+  file?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<QueryFileArgs, '_id'>>;
+  files?: Resolver<Maybe<Array<ResolversTypes['File']>>, ParentType, ContextType, RequireFields<QueryFilesArgs, 'page' | 'filters'>>;
   kind?: Resolver<Maybe<ResolversTypes['Kind']>, ParentType, ContextType, RequireFields<QueryKindArgs, '_id'>>;
   kinds?: Resolver<Maybe<Array<ResolversTypes['Kind']>>, ParentType, ContextType, RequireFields<QueryKindsArgs, 'page' | 'filters'>>;
   measurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<QueryMeasurementArgs, '_id'>>;
@@ -707,6 +757,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   appendSampleMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationAppendSampleMeasurementArgs, 'measurementId' | 'sampleId'>>;
   createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'component'>>;
   createExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationCreateExperimentArgs, 'experiment'>>;
+  createFile?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationCreateFileArgs, 'file'>>;
   createKind?: Resolver<ResolversTypes['Kind'], ParentType, ContextType, RequireFields<MutationCreateKindArgs, 'kind'>>;
   createMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'measurement'>>;
   createSample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<MutationCreateSampleArgs, 'sample'>>;
@@ -751,6 +802,17 @@ export type ExperimentResolvers<ContextType = any, ParentType extends ResolversP
   input?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
   output?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
   components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type FileResolvers<ContextType = any, ParentType extends ResolversParentTypes['File'] = ResolversParentTypes['File']> = ResolversObject<{
+  _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hashname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  encoding?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mimetype?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  creationDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -828,6 +890,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Component?: ComponentResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Experiment?: ExperimentResolvers<ContextType>;
+  File?: FileResolvers<ContextType>;
   Kind?: KindResolvers<ContextType>;
   Measurement?: MeasurementResolvers<ContextType>;
   SampleComment?: SampleCommentResolvers<ContextType>;
@@ -890,6 +953,15 @@ export type ExperimentDbObject = {
   input?: Maybe<Array<SampleDbObject['_id']>>,
   output?: Maybe<Array<SampleDbObject['_id']>>,
   components?: Maybe<Array<ComponentDbObject['_id']>>,
+};
+
+export type FileDbObject = {
+  _id: ObjectID,
+  filename: string,
+  hashname: string,
+  encoding: string,
+  mimetype: string,
+  creationDate: string,
 };
 
 export type KindDbObject = {
