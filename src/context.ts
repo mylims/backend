@@ -2,6 +2,7 @@ import { MongoClient } from 'mongodb';
 
 import { Component } from './component/component.model';
 import { Experiment } from './experiment/experiment.model';
+import { File } from './file/file.model';
 import { Kind } from './kind/kind.model';
 import { Measurement } from './measurement/measurement.model';
 import { Sample } from './sample/sample.model';
@@ -10,6 +11,7 @@ import { User } from './user/user.model';
 export interface Models {
   component: Component;
   experiment: Experiment;
+  file: File;
   kind: Kind;
   measurement: Measurement;
   sample: Sample;
@@ -31,6 +33,7 @@ export const context: ContextFunc = async ({ db }) => {
     models: {
       component: new Component(db),
       experiment: new Experiment(db),
+      file: new File(db),
       kind: new Kind(db),
       measurement: new Measurement(db),
       sample: new Sample(db),
