@@ -311,8 +311,8 @@ export interface Status {
 }
 
 export interface StatusInput {
-  kind?: Maybe<Scalars['String']>;
-  date?: Maybe<Scalars['String']>;
+  kind: Scalars['String'];
+  date: Scalars['String'];
 }
 
 export interface Experiment {

@@ -1,7 +1,11 @@
 import { ObjectId } from 'mongodb';
 
 import { Context, Models } from '../context';
-import { Resolvers, Sample as SampleType } from '../generated/graphql';
+import {
+  Resolvers,
+  Sample as SampleType,
+  ExperimentDbObject,
+} from '../generated/graphql';
 import { Sample } from '../sample/sample.model';
 import { randomId } from '../utils/fake';
 import { notEmpty } from '../utils/resolvers';
@@ -61,9 +65,14 @@ export const experimentResolver: Resolvers<Context> = {
 
   Mutation: {
     async createExperiment(_, { experiment }, { models }) {
-      experiment.codeId = randomId(16);
-      experiment.creationDate = new Date().toString();
-      const inserted = await models.experiment.insertOne(experiment);
+      const created: Omit<ExperimentDbObject, '_id'> = {
+        ...experiment,
+        title: experiment.title || '',
+        codeId: randomId(16),
+        creationDate: new Date().toString(),
+        status: experiment.status ? [experiment.status] : null,
+      };
+      const inserted = await models.experiment.insertOne(created);
       return inserted.result && inserted.ops[0];
     },
     async updateExperiment(_, { _id, experiment }, { models }) {
