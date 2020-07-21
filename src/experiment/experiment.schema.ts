@@ -7,8 +7,8 @@ export const experimentSchema = gql`
   }
 
   input StatusInput {
-    kind: String
-    date: String
+    kind: String!
+    date: String!
   }
 
   type Experiment @entity {
