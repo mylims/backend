@@ -35,9 +35,14 @@ export const userSchema = gql`
     role: Role
   }
 
+  type UserPage implements Pagination {
+    result: [User!]
+    totalCount: Int!
+  }
+
   extend type Query {
     user(_id: String!): User
-    users(page: Int!, filters: UserFilters!): [User!]
+    users(page: Int!, filters: UserFilters!): UserPage!
     signin(email: String!, password: String!): AuthUser
   }
 

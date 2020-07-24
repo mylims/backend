@@ -55,9 +55,14 @@ export const sampleSchema = gql`
     summary: String
   }
 
+  type SamplePage implements Pagination {
+    result: [Sample!]
+    totalCount: Int!
+  }
+
   extend type Query {
     sample(_id: String!): Sample
-    samples(page: Int!, filters: SampleFilters!): [Sample!]
+    samples(page: Int!, filters: SampleFilters!): SamplePage!
   }
 
   extend type Mutation {

@@ -21,9 +21,14 @@ export const componentSchema = gql`
     content: JSON
   }
 
+  type ComponentPage implements Pagination {
+    result: [Component!]
+    totalCount: Int!
+  }
+
   extend type Query {
     component(_id: String!): Component
-    components(page: Int!, filters: ComponentFilters!): [Component!]
+    components(page: Int!, filters: ComponentFilters!): ComponentPage!
   }
 
   extend type Mutation {

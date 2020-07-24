@@ -22,9 +22,14 @@ export const kindSchema = gql`
     description: String
   }
 
+  type KindPage implements Pagination {
+    result: [Kind!]
+    totalCount: Int!
+  }
+
   extend type Query {
     kind(_id: String!): Kind
-    kinds(page: Int!, filters: KindFilters!): [Kind!]
+    kinds(page: Int!, filters: KindFilters!): KindPage!
   }
 
   extend type Mutation {

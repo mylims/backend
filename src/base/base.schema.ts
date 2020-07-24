@@ -6,6 +6,10 @@ export const baseSchema = gql`
   # Allows the use of JSONs
   scalar JSON
 
+  interface Pagination {
+    totalCount: Int!
+  }
+
   # This schema allows empty mutations in order to extend them
   type Query {
     _empty: String

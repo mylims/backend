@@ -21,24 +21,28 @@ export interface Scalars {
 
 
 
+export interface Pagination {
+  totalCount: Scalars['Int'];
+}
+
 export interface Query {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']>;
   component?: Maybe<Component>;
-  components?: Maybe<Array<Component>>;
+  components: ComponentPage;
   experiment?: Maybe<Experiment>;
-  experiments?: Maybe<Array<Experiment>>;
+  experiments?: Maybe<ExperimentPage>;
   file?: Maybe<File>;
   files?: Maybe<Array<File>>;
   kind?: Maybe<Kind>;
-  kinds?: Maybe<Array<Kind>>;
+  kinds: KindPage;
   measurement?: Maybe<Measurement>;
-  measurements?: Maybe<Array<Measurement>>;
+  measurements: MeasurementPage;
   sample?: Maybe<Sample>;
-  samples?: Maybe<Array<Sample>>;
+  samples: SamplePage;
   signin?: Maybe<AuthUser>;
   user?: Maybe<User>;
-  users?: Maybe<Array<User>>;
+  users: UserPage;
 }
 
 
@@ -304,6 +308,12 @@ export interface ComponentFilters {
   content?: Maybe<Scalars['JSON']>;
 }
 
+export interface ComponentPage extends Pagination {
+  __typename?: 'ComponentPage';
+  result?: Maybe<Array<Component>>;
+  totalCount: Scalars['Int'];
+}
+
 export interface Status {
   __typename?: 'Status';
   kind: Scalars['String'];
@@ -354,6 +364,12 @@ export interface ExperimentFilters {
   status?: Maybe<Scalars['String']>;
 }
 
+export interface ExperimentPage extends Pagination {
+  __typename?: 'ExperimentPage';
+  result?: Maybe<Array<Experiment>>;
+  totalCount: Scalars['Int'];
+}
+
 export interface File {
   __typename?: 'File';
   _id: Scalars['String'];
@@ -399,6 +415,12 @@ export interface KindFilters {
   description?: Maybe<Scalars['String']>;
 }
 
+export interface KindPage extends Pagination {
+  __typename?: 'KindPage';
+  result?: Maybe<Array<Kind>>;
+  totalCount: Scalars['Int'];
+}
+
 export interface Measurement {
   __typename?: 'Measurement';
   _id: Scalars['String'];
@@ -427,6 +449,12 @@ export interface MeasurementFilters {
   status?: Maybe<Scalars['String']>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
+}
+
+export interface MeasurementPage extends Pagination {
+  __typename?: 'MeasurementPage';
+  result?: Maybe<Array<Measurement>>;
+  totalCount: Scalars['Int'];
 }
 
 export interface SampleComment {
@@ -486,6 +514,12 @@ export interface SampleFilters {
   summary?: Maybe<Scalars['String']>;
 }
 
+export interface SamplePage extends Pagination {
+  __typename?: 'SamplePage';
+  result?: Maybe<Array<Sample>>;
+  totalCount: Scalars['Int'];
+}
+
 export enum Role {
   Admin = 'ADMIN',
   GroupAdmin = 'GROUP_ADMIN',
@@ -520,6 +554,12 @@ export interface UserFilters {
   name?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   role?: Maybe<Role>;
+}
+
+export interface UserPage extends Pagination {
+  __typename?: 'UserPage';
+  result?: Maybe<Array<User>>;
+  totalCount: Scalars['Int'];
 }
 
 export interface AdditionalEntityFields {
@@ -607,27 +647,32 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
+  Pagination: ResolversTypes['ComponentPage'] | ResolversTypes['ExperimentPage'] | ResolversTypes['KindPage'] | ResolversTypes['MeasurementPage'] | ResolversTypes['SamplePage'] | ResolversTypes['UserPage'];
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
   Component: ResolverTypeWrapper<Component>;
   ComponentInput: ComponentInput;
   ComponentFilters: ComponentFilters;
+  ComponentPage: ResolverTypeWrapper<ComponentPage>;
   Status: ResolverTypeWrapper<Status>;
   StatusInput: StatusInput;
   Experiment: ResolverTypeWrapper<Experiment>;
   ExperimentInput: ExperimentInput;
   ExperimentFilters: ExperimentFilters;
+  ExperimentPage: ResolverTypeWrapper<ExperimentPage>;
   File: ResolverTypeWrapper<File>;
   FileInput: FileInput;
   FileFilters: FileFilters;
   Kind: ResolverTypeWrapper<Kind>;
   KindInput: KindInput;
   KindFilters: KindFilters;
+  KindPage: ResolverTypeWrapper<KindPage>;
   Measurement: ResolverTypeWrapper<Measurement>;
   MeasurementInput: MeasurementInput;
   MeasurementFilters: MeasurementFilters;
+  MeasurementPage: ResolverTypeWrapper<MeasurementPage>;
   SampleComment: ResolverTypeWrapper<SampleComment>;
   SampleCommentInput: SampleCommentInput;
   SampleSummary: ResolverTypeWrapper<SampleSummary>;
@@ -635,11 +680,13 @@ export type ResolversTypes = ResolversObject<{
   Sample: ResolverTypeWrapper<Sample>;
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
+  SamplePage: ResolverTypeWrapper<SamplePage>;
   Role: Role;
   User: ResolverTypeWrapper<User>;
   AuthUser: ResolverTypeWrapper<AuthUser>;
   UserInput: UserInput;
   UserFilters: UserFilters;
+  UserPage: ResolverTypeWrapper<UserPage>;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 }>;
@@ -647,27 +694,32 @@ export type ResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   JSON: Scalars['JSON'];
+  Pagination: ResolversParentTypes['ComponentPage'] | ResolversParentTypes['ExperimentPage'] | ResolversParentTypes['KindPage'] | ResolversParentTypes['MeasurementPage'] | ResolversParentTypes['SamplePage'] | ResolversParentTypes['UserPage'];
+  Int: Scalars['Int'];
   Query: {};
   String: Scalars['String'];
-  Int: Scalars['Int'];
   Mutation: {};
   Component: Component;
   ComponentInput: ComponentInput;
   ComponentFilters: ComponentFilters;
+  ComponentPage: ComponentPage;
   Status: Status;
   StatusInput: StatusInput;
   Experiment: Experiment;
   ExperimentInput: ExperimentInput;
   ExperimentFilters: ExperimentFilters;
+  ExperimentPage: ExperimentPage;
   File: File;
   FileInput: FileInput;
   FileFilters: FileFilters;
   Kind: Kind;
   KindInput: KindInput;
   KindFilters: KindFilters;
+  KindPage: KindPage;
   Measurement: Measurement;
   MeasurementInput: MeasurementInput;
   MeasurementFilters: MeasurementFilters;
+  MeasurementPage: MeasurementPage;
   SampleComment: SampleComment;
   SampleCommentInput: SampleCommentInput;
   SampleSummary: SampleSummary;
@@ -675,10 +727,12 @@ export type ResolversParentTypes = ResolversObject<{
   Sample: Sample;
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
+  SamplePage: SamplePage;
   User: User;
   AuthUser: AuthUser;
   UserInput: UserInput;
   UserFilters: UserFilters;
+  UserPage: UserPage;
   AdditionalEntityFields: AdditionalEntityFields;
   Boolean: Scalars['Boolean'];
 }>;
@@ -726,23 +780,28 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
+export type PaginationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Pagination'] = ResolversParentTypes['Pagination']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'ComponentPage' | 'ExperimentPage' | 'KindPage' | 'MeasurementPage' | 'SamplePage' | 'UserPage', ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   component?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<QueryComponentArgs, '_id'>>;
-  components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType, RequireFields<QueryComponentsArgs, 'page' | 'filters'>>;
+  components?: Resolver<ResolversTypes['ComponentPage'], ParentType, ContextType, RequireFields<QueryComponentsArgs, 'page' | 'filters'>>;
   experiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<QueryExperimentArgs, '_id'>>;
-  experiments?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType, RequireFields<QueryExperimentsArgs, 'page' | 'filters'>>;
+  experiments?: Resolver<Maybe<ResolversTypes['ExperimentPage']>, ParentType, ContextType, RequireFields<QueryExperimentsArgs, 'page' | 'filters'>>;
   file?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<QueryFileArgs, '_id'>>;
   files?: Resolver<Maybe<Array<ResolversTypes['File']>>, ParentType, ContextType, RequireFields<QueryFilesArgs, 'page' | 'filters'>>;
   kind?: Resolver<Maybe<ResolversTypes['Kind']>, ParentType, ContextType, RequireFields<QueryKindArgs, '_id'>>;
-  kinds?: Resolver<Maybe<Array<ResolversTypes['Kind']>>, ParentType, ContextType, RequireFields<QueryKindsArgs, 'page' | 'filters'>>;
+  kinds?: Resolver<ResolversTypes['KindPage'], ParentType, ContextType, RequireFields<QueryKindsArgs, 'page' | 'filters'>>;
   measurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<QueryMeasurementArgs, '_id'>>;
-  measurements?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
+  measurements?: Resolver<ResolversTypes['MeasurementPage'], ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
   sample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleArgs, '_id'>>;
-  samples?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType, RequireFields<QuerySamplesArgs, 'page' | 'filters'>>;
+  samples?: Resolver<ResolversTypes['SamplePage'], ParentType, ContextType, RequireFields<QuerySamplesArgs, 'page' | 'filters'>>;
   signin?: Resolver<Maybe<ResolversTypes['AuthUser']>, ParentType, ContextType, RequireFields<QuerySigninArgs, 'email' | 'password'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, '_id'>>;
-  users?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType, RequireFields<QueryUsersArgs, 'page' | 'filters'>>;
+  users?: Resolver<ResolversTypes['UserPage'], ParentType, ContextType, RequireFields<QueryUsersArgs, 'page' | 'filters'>>;
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
@@ -782,6 +841,12 @@ export type ComponentResolvers<ContextType = any, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type ComponentPageResolvers<ContextType = any, ParentType extends ResolversParentTypes['ComponentPage'] = ResolversParentTypes['ComponentPage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = ResolversObject<{
   kind?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   date?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -805,6 +870,12 @@ export type ExperimentResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type ExperimentPageResolvers<ContextType = any, ParentType extends ResolversParentTypes['ExperimentPage'] = ResolversParentTypes['ExperimentPage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type FileResolvers<ContextType = any, ParentType extends ResolversParentTypes['File'] = ResolversParentTypes['File']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -825,6 +896,12 @@ export type KindResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type KindPageResolvers<ContextType = any, ParentType extends ResolversParentTypes['KindPage'] = ResolversParentTypes['KindPage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['Kind']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type MeasurementResolvers<ContextType = any, ParentType extends ResolversParentTypes['Measurement'] = ResolversParentTypes['Measurement']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sample?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -835,6 +912,12 @@ export type MeasurementResolvers<ContextType = any, ParentType extends Resolvers
   endTime?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   components?: Resolver<Maybe<Array<ResolversTypes['Component']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type MeasurementPageResolvers<ContextType = any, ParentType extends ResolversParentTypes['MeasurementPage'] = ResolversParentTypes['MeasurementPage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -866,6 +949,12 @@ export type SampleResolvers<ContextType = any, ParentType extends ResolversParen
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type SamplePageResolvers<ContextType = any, ParentType extends ResolversParentTypes['SamplePage'] = ResolversParentTypes['SamplePage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -883,21 +972,34 @@ export type AuthUserResolvers<ContextType = any, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type UserPageResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserPage'] = ResolversParentTypes['UserPage']> = ResolversObject<{
+  result?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
   JSON?: GraphQLScalarType;
+  Pagination?: PaginationResolvers;
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Component?: ComponentResolvers<ContextType>;
+  ComponentPage?: ComponentPageResolvers<ContextType>;
   Status?: StatusResolvers<ContextType>;
   Experiment?: ExperimentResolvers<ContextType>;
+  ExperimentPage?: ExperimentPageResolvers<ContextType>;
   File?: FileResolvers<ContextType>;
   Kind?: KindResolvers<ContextType>;
+  KindPage?: KindPageResolvers<ContextType>;
   Measurement?: MeasurementResolvers<ContextType>;
+  MeasurementPage?: MeasurementPageResolvers<ContextType>;
   SampleComment?: SampleCommentResolvers<ContextType>;
   SampleSummary?: SampleSummaryResolvers<ContextType>;
   Sample?: SampleResolvers<ContextType>;
+  SamplePage?: SamplePageResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   AuthUser?: AuthUserResolvers<ContextType>;
+  UserPage?: UserPageResolvers<ContextType>;
 }>;
 
 

@@ -21,7 +21,7 @@ export const fileResolver: Resolvers<Context> = {
       return null;
     },
     async files(_, { page, filters }, { models: { file } }) {
-      const files = await file.findPaginated(page, filters);
+      const { result: files } = await file.findPaginated(page, filters);
       if (files) {
         const ans = files.map(async (result) => {
           const url = await axios.get<string>(
