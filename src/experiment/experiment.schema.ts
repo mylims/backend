@@ -49,9 +49,14 @@ export const experimentSchema = gql`
     status: String
   }
 
+  type ExperimentPage implements Pagination {
+    result: [Experiment!]
+    totalCount: Int!
+  }
+
   extend type Query {
     experiment(_id: String!): Experiment
-    experiments(page: Int!, filters: ExperimentFilters!): [Experiment!]
+    experiments(page: Int!, filters: ExperimentFilters!): ExperimentPage
   }
 
   extend type Mutation {

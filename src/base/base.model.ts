@@ -87,12 +87,15 @@ export class Base<Model extends WithId> {
   public async findPaginated<ModelFilter>(
     page: number,
     filters: ModelFilter,
-  ): Promise<Model[] | null> {
-    return this.db
-      .find<Model>(filters)
-      .skip(page * PAGE_SIZE)
-      .limit(PAGE_SIZE)
-      .toArray();
+  ): Promise<{ result: Model[] | null; totalCount: number }> {
+    const query = this.db.find<Model>(filters);
+    return {
+      result: await query
+        .skip(page * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .toArray(),
+      totalCount: await query.count(),
+    };
   }
 
   /**

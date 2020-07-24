@@ -30,9 +30,14 @@ export const measurementSchema = gql`
     endTime: String
   }
 
+  type MeasurementPage implements Pagination {
+    result: [Measurement!]
+    totalCount: Int!
+  }
+
   extend type Query {
     measurement(_id: String!): Measurement
-    measurements(page: Int!, filters: MeasurementFilters!): [Measurement!]
+    measurements(page: Int!, filters: MeasurementFilters!): MeasurementPage!
   }
 
   extend type Mutation {
