@@ -50,6 +50,7 @@
     "trailingComma": "all"
   },
   "dependencies": {
+    "@graphql-codegen/typescript-mongodb": "1.15.3",
     "apollo-server-fastify": "~2.14.4",
     "axios": "~0.19.2",
     "fastify": "~2.14.1",
@@ -63,7 +64,6 @@
   "devDependencies": {
     "@graphql-codegen/cli": "1.15.3",
     "@graphql-codegen/typescript": "1.15.3",
-    "@graphql-codegen/typescript-mongodb": "1.15.3",
     "@graphql-codegen/typescript-resolvers": "1.15.3",
     "@shelf/jest-mongodb": "~1.1.5",
     "@types/graphql-type-json": "~0.3.2",

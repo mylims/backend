@@ -15,5 +15,9 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/build/lib .
 
+ENV NODE_ENV production
+COPY package*.json ./
+RUN npm ci
+
 USER node
 CMD [ "node", "index.js" ]

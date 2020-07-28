@@ -10,6 +10,8 @@ services:
       DB_USER: root
       DB_PWD: example
       DB_HOST: mylims_db
+      FILESYSTEM_HOST: filesystem
+      FILESYSTEM_PORT: 5000
     networks:
       - mylims
       - local
