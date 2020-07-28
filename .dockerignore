@@ -1,0 +1,10 @@
+coverage/
+lib/
+node_modules/
+.eslintcache
+.gitignore
+codegen.yml
+jest-mongodb-config.js
+jest.config.js
+LICENSE
+README.md
