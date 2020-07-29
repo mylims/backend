@@ -3,7 +3,9 @@ import axios from 'axios';
 import { Context } from '../context';
 import { Resolvers } from '../generated/graphql';
 
-const fileServer = 'http://filesystem';
+const filesystem = process.env.FILESYSTEM_HOST || 'filesystem';
+const port = process.env.FILESYSTEM_PORT || '5000';
+const fileServer = `http://${filesystem}:${port}`;
 
 export const fileResolver: Resolvers<Context> = {
   Query: {

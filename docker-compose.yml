@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  mylims_server:
+  mylims_backend:
     build: .
     depends_on:
       - mylims_db
@@ -10,6 +10,11 @@ services:
       DB_USER: root
       DB_PWD: example
       DB_HOST: mylims_db
+      FILESYSTEM_HOST: mylims_filesystem
+      FILESYSTEM_PORT: 5000
+    networks:
+      - mylims
+      - local
 
   mylims_db:
     image: mongo:4.2.5
@@ -19,3 +24,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - local
+
+networks:
+  mylims:
+    external:
+      name: mylims
+  local:

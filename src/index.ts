@@ -38,7 +38,7 @@ async function createApp(port: number) {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   app.register(server.createHandler());
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   return server;
 }
 
