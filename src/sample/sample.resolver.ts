@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb';
 
 import { Context } from '../context';
-import { Resolvers } from '../generated/graphql';
+import { Resolvers, SampleDbObject } from '../generated/graphql';
+import { randomId } from '../utils/fake';
 
 export const sampleResolver: Resolvers<Context> = {
   Query: {
@@ -24,7 +25,13 @@ export const sampleResolver: Resolvers<Context> = {
 
   Mutation: {
     async createSample(_, { sample }, { models }) {
-      const inserted = await models.sample.insertOne(sample);
+      const created: Omit<SampleDbObject, '_id'> = {
+        ...sample,
+        title: sample.title || '',
+        codeId: randomId(16),
+        status: sample.status ? [sample.status] : null,
+      };
+      const inserted = await models.sample.insertOne(created);
       return inserted.result && inserted.ops[0];
     },
     async updateSample(_, { _id, sample }, { models }) {
