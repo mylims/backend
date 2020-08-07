@@ -11,7 +11,6 @@ const fileTest: FileDbObject = {
   _id: new ObjectID(id),
   filename: 'test_file',
   mimetype: 'text/plain',
-  encoding: 'UTF-8',
   hashname: randomId(12),
   creationDate: new Date().toString(),
 };

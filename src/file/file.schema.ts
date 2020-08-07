@@ -5,7 +5,6 @@ export const fileSchema = gql`
     _id: String! @id
     filename: String! @column
     hashname: String! @column
-    encoding: String! @column
     mimetype: String! @column
     creationDate: String! @column
     signedUrl: String!
@@ -14,7 +13,6 @@ export const fileSchema = gql`
   input FileInput {
     filename: String!
     hashname: String!
-    encoding: String!
     mimetype: String!
   }
 

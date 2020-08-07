@@ -75,7 +75,6 @@ describe('File single searchers', () => {
     const file: Partial<FileType> = {
       filename: 'test_file',
       mimetype: 'text/plain',
-      encoding: 'UTF-8',
       hashname: randomId(16),
     };
     const create = await mutate({
