@@ -76,9 +76,17 @@ export const experimentResolver: Resolvers<Context> = {
       return inserted.result && inserted.ops[0];
     },
     async updateExperiment(_, { _id, experiment }, { models }) {
-      const { value } = await models.experiment.updateOne(_id, experiment);
+      const { status, ...updated } = experiment;
+      const { value } = await models.experiment.updateOne(_id, updated);
       if (!value) throw new Error(`Updated failed to ${_id}`);
-      return value;
+
+      if (status) {
+        const { value: add } = await models.experiment.append(_id, { status });
+        if (!add) throw new Error(`Updated failed to ${_id}`);
+        return add;
+      } else {
+        return value;
+      }
     },
     appendExperimentInput(_, { sampleId, experimentId }, { models }) {
       return appendSample(models, sampleId, experimentId, 'input');
