@@ -122,7 +122,7 @@ export class Base<Model extends WithId> {
 
   public async append(
     id: string,
-    updater: { [k: string]: string },
+    updater: Record<string, unknown>,
   ): Promise<FindAndModifyWriteOpResultObject<Model>> {
     const _id = new ObjectID(id);
     return this.db.findOneAndUpdate(

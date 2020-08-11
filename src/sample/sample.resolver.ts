@@ -35,9 +35,18 @@ export const sampleResolver: Resolvers<Context> = {
       return inserted.result && inserted.ops[0];
     },
     async updateSample(_, { _id, sample }, { models }) {
-      const { value } = await models.sample.updateOne(_id, sample);
+      const { status, comments, summary, ...updated } = sample;
+      const { value } = await models.sample.updateOne(_id, updated);
       if (!value) throw new Error(`Updated failed to ${_id}`);
-      return value;
+
+      if (status || comments || summary) {
+        const add = { status, comments, summary };
+        const { value: added } = await models.sample.append(_id, add);
+        if (!added) throw new Error(`Updated failed to ${_id}`);
+        return added;
+      } else {
+        return value;
+      }
     },
     async appendSampleComponent(_, { componentId, sampleId }, { models }) {
       const component = await models.component.findById(componentId);

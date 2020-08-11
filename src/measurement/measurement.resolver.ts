@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 import { Context } from '../context';
-import { Resolvers } from '../generated/graphql';
+import { Resolvers, MeasurementDbObject } from '../generated/graphql';
 
 export const measurementResolver: Resolvers<Context> = {
   Query: {
@@ -21,13 +21,26 @@ export const measurementResolver: Resolvers<Context> = {
 
   Mutation: {
     async createMeasurement(_, { measurement }, { models }) {
-      const inserted = await models.measurement.insertOne(measurement);
+      const created: Omit<MeasurementDbObject, '_id'> = {
+        ...measurement,
+        title: measurement.title || '',
+        status: measurement.status ? [measurement.status] : null,
+      };
+      const inserted = await models.measurement.insertOne(created);
       return inserted.result && inserted.ops[0];
     },
     async updateMeasurement(_, { _id, measurement }, { models }) {
-      const { value } = await models.measurement.updateOne(_id, measurement);
+      const { status, ...updated } = measurement;
+      const { value } = await models.measurement.updateOne(_id, updated);
       if (!value) throw new Error(`Updated failed to ${_id}`);
-      return value;
+
+      if (status) {
+        const { value: add } = await models.measurement.append(_id, { status });
+        if (!add) throw new Error(`Updated failed to ${_id}`);
+        return add;
+      } else {
+        return value;
+      }
     },
     appendMeasurementComponent: async (
       _,

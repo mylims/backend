@@ -305,7 +305,6 @@ export interface ComponentInput {
 
 export interface ComponentFilters {
   kind: Scalars['String'];
-  content?: Maybe<Scalars['JSON']>;
 }
 
 export interface ComponentPage extends Pagination {

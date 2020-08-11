@@ -18,7 +18,6 @@ export const componentSchema = gql`
 
   input ComponentFilters {
     kind: String!
-    content: JSON
   }
 
   type ComponentPage implements Pagination {
