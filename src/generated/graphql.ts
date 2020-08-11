@@ -374,7 +374,6 @@ export interface File {
   _id: Scalars['String'];
   filename: Scalars['String'];
   hashname: Scalars['String'];
-  encoding: Scalars['String'];
   mimetype: Scalars['String'];
   creationDate: Scalars['String'];
   signedUrl: Scalars['String'];
@@ -383,7 +382,6 @@ export interface File {
 export interface FileInput {
   filename: Scalars['String'];
   hashname: Scalars['String'];
-  encoding: Scalars['String'];
   mimetype: Scalars['String'];
 }
 
@@ -879,7 +877,6 @@ export type FileResolvers<ContextType = any, ParentType extends ResolversParentT
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hashname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  encoding?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mimetype?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   creationDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signedUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1060,7 +1057,6 @@ export type FileDbObject = {
   _id: ObjectID,
   filename: string,
   hashname: string,
-  encoding: string,
   mimetype: string,
   creationDate: string,
 };
