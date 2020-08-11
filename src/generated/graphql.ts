@@ -139,6 +139,7 @@ export interface Mutation {
   appendMeasurementComponent?: Maybe<Component>;
   appendSampleComponent?: Maybe<Component>;
   appendSampleMeasurement?: Maybe<Measurement>;
+  appendUserGroup: User;
   createComponent?: Maybe<Component>;
   createExperiment?: Maybe<Experiment>;
   createFile?: Maybe<File>;
@@ -202,6 +203,12 @@ export interface MutationAppendSampleComponentArgs {
 export interface MutationAppendSampleMeasurementArgs {
   measurementId: Scalars['String'];
   sampleId: Scalars['String'];
+}
+
+
+export interface MutationAppendUserGroupArgs {
+  _id: Scalars['String'];
+  group: GroupInput;
 }
 
 
@@ -328,7 +335,7 @@ export interface Experiment {
   __typename?: 'Experiment';
   _id: Scalars['String'];
   codeId: Scalars['String'];
-  owners?: Maybe<Array<Scalars['String']>>;
+  owners?: Maybe<Array<User>>;
   tags?: Maybe<Array<Scalars['String']>>;
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
@@ -523,6 +530,22 @@ export enum Role {
   Member = 'MEMBER'
 }
 
+export enum Permissions {
+  Read = 'READ',
+  Write = 'WRITE'
+}
+
+export interface Group {
+  __typename?: 'Group';
+  name: Scalars['String'];
+  permission: Permissions;
+}
+
+export interface GroupInput {
+  name: Scalars['String'];
+  permission: Permissions;
+}
+
 export interface User {
   __typename?: 'User';
   _id: Scalars['String'];
@@ -531,7 +554,7 @@ export interface User {
   role: Role;
   salt?: Maybe<Scalars['String']>;
   hash?: Maybe<Scalars['String']>;
-  groups?: Maybe<Array<Scalars['String']>>;
+  groups?: Maybe<Array<Group>>;
 }
 
 export interface AuthUser {
@@ -679,6 +702,9 @@ export type ResolversTypes = ResolversObject<{
   SampleFilters: SampleFilters;
   SamplePage: ResolverTypeWrapper<SamplePage>;
   Role: Role;
+  Permissions: Permissions;
+  Group: ResolverTypeWrapper<Group>;
+  GroupInput: GroupInput;
   User: ResolverTypeWrapper<User>;
   AuthUser: ResolverTypeWrapper<AuthUser>;
   UserInput: UserInput;
@@ -725,6 +751,8 @@ export type ResolversParentTypes = ResolversObject<{
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
   SamplePage: SamplePage;
+  Group: Group;
+  GroupInput: GroupInput;
   User: User;
   AuthUser: AuthUser;
   UserInput: UserInput;
@@ -811,6 +839,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   appendMeasurementComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationAppendMeasurementComponentArgs, 'componentId' | 'measurementId'>>;
   appendSampleComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationAppendSampleComponentArgs, 'componentId' | 'sampleId'>>;
   appendSampleMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationAppendSampleMeasurementArgs, 'measurementId' | 'sampleId'>>;
+  appendUserGroup?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAppendUserGroupArgs, '_id' | 'group'>>;
   createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'component'>>;
   createExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationCreateExperimentArgs, 'experiment'>>;
   createFile?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationCreateFileArgs, 'file'>>;
@@ -853,7 +882,7 @@ export type StatusResolvers<ContextType = any, ParentType extends ResolversParen
 export type ExperimentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Experiment'] = ResolversParentTypes['Experiment']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   codeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  owners?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  owners?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -951,6 +980,12 @@ export type SamplePageResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type GroupResolvers<ContextType = any, ParentType extends ResolversParentTypes['Group'] = ResolversParentTypes['Group']> = ResolversObject<{
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  permission?: Resolver<ResolversTypes['Permissions'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -958,7 +993,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
   salt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hash?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  groups?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  groups?: Resolver<Maybe<Array<ResolversTypes['Group']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -993,6 +1028,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   SampleSummary?: SampleSummaryResolvers<ContextType>;
   Sample?: SampleResolvers<ContextType>;
   SamplePage?: SamplePageResolvers<ContextType>;
+  Group?: GroupResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   AuthUser?: AuthUserResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
@@ -1040,7 +1076,7 @@ export type StatusDbObject = {
 export type ExperimentDbObject = {
   _id: ObjectID,
   codeId: string,
-  owners?: Maybe<Array<string>>,
+  owners?: Maybe<Array<UserDbObject['_id']>>,
   tags?: Maybe<Array<string>>,
   title: string,
   description?: Maybe<string>,
@@ -1106,6 +1142,8 @@ export type SampleDbObject = {
   measurements?: Maybe<Array<MeasurementDbObject['_id']>>,
 };
 
+export type GroupDbObject = {};
+
 export type UserDbObject = {
   _id: ObjectID,
   name: string,
@@ -1113,5 +1151,5 @@ export type UserDbObject = {
   role: string,
   salt?: Maybe<string>,
   hash?: Maybe<string>,
-  groups?: Maybe<Array<string>>,
+  groups?: Maybe<Array<GroupDbObject>>,
 };
