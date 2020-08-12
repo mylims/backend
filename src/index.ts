@@ -5,7 +5,7 @@ import fastify from 'fastify';
 
 import { DbConnector } from './connector';
 import { context as contextFn } from './context';
-import { AuthDirective } from './directives';
+import { AuthDirective, AdminDirective } from './directives';
 import { resolvers } from './resolvers';
 import { typeDefs } from './schemas';
 import { getUserFromToken } from './utils/auth';
@@ -17,7 +17,7 @@ export async function createServer(test?: boolean) {
     server: new ApolloServer({
       typeDefs,
       resolvers,
-      schemaDirectives: { auth: AuthDirective },
+      schemaDirectives: { auth: AuthDirective, admin: AdminDirective },
       context({ req }) {
         const token: string = req?.headers?.authorization;
         const user = test ? { role: 'ADMIN' } : getUserFromToken(token);

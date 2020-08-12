@@ -15,10 +15,6 @@ import { User } from './generated/graphql';
 type Ctx = Context & { user: User | null };
 
 export class AuthDirective extends SchemaDirectiveVisitor {
-  private rolesRequired(required: string, received: string) {
-    throw new AuthError(`Required ${required} role, received ${received}`);
-  }
-
   public visitFieldDefinition(field: GraphQLField<unknown, Ctx>) {
     const { resolve = defaultFieldResolver } = field;
 
@@ -32,7 +28,7 @@ export class AuthDirective extends SchemaDirectiveVisitor {
       astNode: undefined,
     });
     field.args.push({
-      name: 'owner',
+      name: 'isOwner',
       description: 'User is part of the owners',
       type: GraphQLBoolean,
       defaultValue: false,
@@ -41,34 +37,37 @@ export class AuthDirective extends SchemaDirectiveVisitor {
     });
 
     field.resolve = (...args) => {
-      const { role } = this.args;
-      if (role) {
+      const { admin } = this.args;
+      if (admin) {
         // Checks user on the context
-        const { group, owner } = args[1];
+        const { group, isOwner } = args[1];
         const { user } = args[2];
         if (!user) throw new AuthError('Not authenticated');
-
-        // Admin required
-        if (user.role !== 'ADMIN' && role === 'ADMIN') {
-          this.rolesRequired(role, user.role);
-        }
 
         // Belongs to group
         const belongGroup = user.groups?.reduce(
           (acc, { name }) => acc || name === group,
           false,
         );
-        if (user.role !== 'ADMIN' && !belongGroup) {
-          throw new AuthError(`Doesn't belong to group`);
-        }
+        if (!belongGroup) throw new AuthError(`Don't belong to group`);
 
-        // Group admin
-        if (user.role !== 'GROUP_ADMIN' && role === 'GROUP_ADMIN') {
-          this.rolesRequired(role, user.role);
-        }
+        // Permissions
+        const isAdmin = ['ADMIN', 'GROUP_ADMIN'].includes(user.role);
+        if (!isAdmin && !isOwner) throw new AuthError(`Not an owner`);
+      }
+      return resolve.apply(this, args);
+    };
+  }
+}
 
-        // If it's the owner
-        if (!owner) throw new AuthError(`You are not the owner`);
+export class AdminDirective extends SchemaDirectiveVisitor {
+  public visitFieldDefinition(field: GraphQLField<unknown, Ctx>) {
+    const { resolve = defaultFieldResolver } = field;
+
+    field.resolve = (...args) => {
+      const { user } = args[2];
+      if (user?.role !== 'ADMIN') {
+        throw new AuthError(`Required admin role, received ${user?.role}`);
       }
       return resolve.apply(this, args);
     };
