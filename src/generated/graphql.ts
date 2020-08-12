@@ -21,6 +21,7 @@ export interface Scalars {
 
 
 
+
 export interface Pagination {
   totalCount: Scalars['Int'];
 }
@@ -208,7 +209,7 @@ export interface MutationAppendSampleMeasurementArgs {
 
 export interface MutationAppendUserGroupArgs {
   _id: Scalars['String'];
-  group: GroupInput;
+  group: Scalars['String'];
 }
 
 
@@ -530,22 +531,6 @@ export enum Role {
   Member = 'MEMBER'
 }
 
-export enum Permissions {
-  Read = 'READ',
-  Write = 'WRITE'
-}
-
-export interface Group {
-  __typename?: 'Group';
-  name: Scalars['String'];
-  permission: Permissions;
-}
-
-export interface GroupInput {
-  name: Scalars['String'];
-  permission: Permissions;
-}
-
 export interface User {
   __typename?: 'User';
   _id: Scalars['String'];
@@ -554,7 +539,7 @@ export interface User {
   role: Role;
   salt?: Maybe<Scalars['String']>;
   hash?: Maybe<Scalars['String']>;
-  groups?: Maybe<Array<Group>>;
+  groups?: Maybe<Array<Scalars['String']>>;
 }
 
 export interface AuthUser {
@@ -702,9 +687,6 @@ export type ResolversTypes = ResolversObject<{
   SampleFilters: SampleFilters;
   SamplePage: ResolverTypeWrapper<SamplePage>;
   Role: Role;
-  Permissions: Permissions;
-  Group: ResolverTypeWrapper<Group>;
-  GroupInput: GroupInput;
   User: ResolverTypeWrapper<User>;
   AuthUser: ResolverTypeWrapper<AuthUser>;
   UserInput: UserInput;
@@ -751,8 +733,6 @@ export type ResolversParentTypes = ResolversObject<{
   SampleInput: SampleInput;
   SampleFilters: SampleFilters;
   SamplePage: SamplePage;
-  Group: Group;
-  GroupInput: GroupInput;
   User: User;
   AuthUser: AuthUser;
   UserInput: UserInput;
@@ -762,9 +742,13 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
 }>;
 
-export type AuthDirectiveArgs = {   role?: Maybe<Role>; };
+export type AuthDirectiveArgs = {   admin?: Maybe<Scalars['Boolean']>; };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type AdminDirectiveArgs = {  };
+
+export type AdminDirectiveResolver<Result, Parent, ContextType = any, Args = AdminDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type UnionDirectiveArgs = {   discriminatorField?: Maybe<Scalars['String']>;
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>; };
@@ -980,12 +964,6 @@ export type SamplePageResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
-export type GroupResolvers<ContextType = any, ParentType extends ResolversParentTypes['Group'] = ResolversParentTypes['Group']> = ResolversObject<{
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  permission?: Resolver<ResolversTypes['Permissions'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
-}>;
-
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -993,7 +971,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
   salt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hash?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  groups?: Resolver<Maybe<Array<ResolversTypes['Group']>>, ParentType, ContextType>;
+  groups?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -1028,7 +1006,6 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   SampleSummary?: SampleSummaryResolvers<ContextType>;
   Sample?: SampleResolvers<ContextType>;
   SamplePage?: SamplePageResolvers<ContextType>;
-  Group?: GroupResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   AuthUser?: AuthUserResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
@@ -1042,6 +1019,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
 export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = ResolversObject<{
   auth?: AuthDirectiveResolver<any, any, ContextType>;
+  admin?: AdminDirectiveResolver<any, any, ContextType>;
   union?: UnionDirectiveResolver<any, any, ContextType>;
   abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
   entity?: EntityDirectiveResolver<any, any, ContextType>;
@@ -1142,8 +1120,6 @@ export type SampleDbObject = {
   measurements?: Maybe<Array<MeasurementDbObject['_id']>>,
 };
 
-export type GroupDbObject = {};
-
 export type UserDbObject = {
   _id: ObjectID,
   name: string,
@@ -1151,5 +1127,5 @@ export type UserDbObject = {
   role: string,
   salt?: Maybe<string>,
   hash?: Maybe<string>,
-  groups?: Maybe<Array<GroupDbObject>>,
+  groups?: Maybe<Array<string>>,
 };

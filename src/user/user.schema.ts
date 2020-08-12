@@ -7,21 +7,6 @@ export const userSchema = gql`
     MEMBER
   }
 
-  enum Permissions {
-    READ
-    WRITE
-  }
-
-  type Group @entity(embedded: true) {
-    name: String!
-    permission: Permissions!
-  }
-
-  input GroupInput {
-    name: String!
-    permission: Permissions!
-  }
-
   type User @entity {
     _id: String! @id
     name: String! @column
@@ -29,7 +14,7 @@ export const userSchema = gql`
     role: Role! @column
     salt: String @column
     hash: String @column
-    groups: [Group!] @embedded
+    groups: [String!] @column
   }
 
   type AuthUser {
@@ -64,6 +49,6 @@ export const userSchema = gql`
   extend type Mutation {
     createUser(user: UserInput!): AuthUser!
     updateUser(_id: String!, user: UserInput!): User! @admin
-    appendUserGroup(_id: String!, group: GroupInput!): User! @admin
+    appendUserGroup(_id: String!, group: String!): User! @admin
   }
 `;

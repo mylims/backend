@@ -46,7 +46,7 @@ export class AuthDirective extends SchemaDirectiveVisitor {
 
         // Belongs to group
         const belongGroup = user.groups?.reduce(
-          (acc, { name }) => acc || name === group,
+          (acc, name) => acc || name === group,
           false,
         );
         if (!belongGroup) throw new AuthError(`Don't belong to group`);
