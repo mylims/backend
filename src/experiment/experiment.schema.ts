@@ -14,7 +14,7 @@ export const experimentSchema = gql`
   type Experiment @entity {
     _id: String! @id
     codeId: String! @column
-    owners: [String!] @column
+    owners: [User!] @link
     tags: [String!] @column
     title: String! @column
     description: String @column

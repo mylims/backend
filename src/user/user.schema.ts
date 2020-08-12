@@ -48,6 +48,7 @@ export const userSchema = gql`
 
   extend type Mutation {
     createUser(user: UserInput!): AuthUser!
-    updateUser(_id: String!, user: UserInput!): User! @auth(role: ADMIN)
+    updateUser(_id: String!, user: UserInput!): User! @admin
+    appendUserGroup(_id: String!, group: String!): User! @admin
   }
 `;

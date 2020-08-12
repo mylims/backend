@@ -71,6 +71,7 @@ export const experimentResolver: Resolvers<Context> = {
         codeId: randomId(16),
         creationDate: new Date().toString(),
         status: experiment.status ? [experiment.status] : null,
+        owners: experiment.owners?.map((id) => new ObjectId(id)),
       };
       const inserted = await models.experiment.insertOne(created);
       return inserted.result && inserted.ops[0];

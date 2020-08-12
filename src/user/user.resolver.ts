@@ -50,5 +50,10 @@ export const userResolver: Resolvers<Context> = {
       }
       return updateUser(models.user, _id, user);
     },
+    async appendUserGroup(_, { _id, group }, { models }) {
+      const { value } = await models.user.append(_id, { group });
+      if (!value) throw new Error(`Appending group to ${_id} failed`);
+      return value;
+    },
   },
 };

@@ -63,18 +63,14 @@ const UPDATE = gql`
 
 describe('User single searchers', () => {
   it('Insertion', async () => {
-    const res1 = await query({
-      query: GET_ID,
-      variables: { id: randomId(24) },
-    });
+    const ans = await query({ query: GET_ID, variables: { id: randomId(24) } });
 
     // check no errors in the query
-    expect(res1.errors).toBeUndefined();
-    expect(res1.data).not.toBeUndefined();
-    expect(res1.data).not.toBeNull();
-    const data1 = res1.data || {};
-    expect(data1.user).not.toBeUndefined();
-    expect(data1.user).toBeNull();
+    expect(ans.errors).toBeUndefined();
+    expect(ans.data).not.toBeUndefined();
+    expect(ans.data).not.toBeNull();
+    expect(ans.data?.user).not.toBeUndefined();
+    expect(ans.data?.user).toBeNull();
 
     // Insert user
     const user: UserInput = {
@@ -82,32 +78,25 @@ describe('User single searchers', () => {
       email: 'test@test.io',
       password: 'test',
     };
-    const create = await mutate({
-      mutation: CREATE,
-      variables: { user },
-    });
+    const create = await mutate({ mutation: CREATE, variables: { user } });
     expect(create.errors).toBeUndefined();
     expect(create.data).not.toBeUndefined();
     expect(create.data).not.toBeNull();
-    const data2 = create.data || {};
-    expect(data2.createUser).not.toBeUndefined();
-    expect(data2.createUser).toHaveProperty('token');
-    expect(data2.createUser.user).toHaveProperty('_id');
-    expect(data2.createUser.user.name).toBe('test');
+    expect(create.data?.createUser).not.toBeUndefined();
+    expect(create.data?.createUser).toHaveProperty('token');
+    expect(create.data?.createUser.user).toHaveProperty('_id');
+    expect(create.data?.createUser.user.name).toBe('test');
 
     // Update user
-    const id = data2.createUser.user._id;
+    const id = create.data?.createUser.user._id;
     const name = 'test update';
-    const update = await mutate({
-      mutation: UPDATE,
-      variables: { id, user: { name } },
-    });
+    const variables = { id, user: { name } };
+    const update = await mutate({ mutation: UPDATE, variables });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();
     expect(update.data).not.toBeNull();
-    const data3 = update.data || {};
-    expect(data3.updateUser).not.toBeUndefined();
-    expect(data3.updateUser._id).toBe(id);
-    expect(data3.updateUser.name).toBe(name);
+    expect(update.data?.updateUser).not.toBeUndefined();
+    expect(update.data?.updateUser._id).toBe(id);
+    expect(update.data?.updateUser.name).toBe(name);
   });
 });

@@ -11,7 +11,7 @@ const id = randomId(24);
 const experimentTest: ExperimentDbObject = {
   _id: new ObjectID(id),
   codeId,
-  owners: ['1'],
+  owners: [new ObjectID(randomId(24))],
   tags: ['test'],
   title: 'test',
   description: 'test description',

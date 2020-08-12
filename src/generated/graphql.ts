@@ -21,6 +21,7 @@ export interface Scalars {
 
 
 
+
 export interface Pagination {
   totalCount: Scalars['Int'];
 }
@@ -139,6 +140,7 @@ export interface Mutation {
   appendMeasurementComponent?: Maybe<Component>;
   appendSampleComponent?: Maybe<Component>;
   appendSampleMeasurement?: Maybe<Measurement>;
+  appendUserGroup: User;
   createComponent?: Maybe<Component>;
   createExperiment?: Maybe<Experiment>;
   createFile?: Maybe<File>;
@@ -202,6 +204,12 @@ export interface MutationAppendSampleComponentArgs {
 export interface MutationAppendSampleMeasurementArgs {
   measurementId: Scalars['String'];
   sampleId: Scalars['String'];
+}
+
+
+export interface MutationAppendUserGroupArgs {
+  _id: Scalars['String'];
+  group: Scalars['String'];
 }
 
 
@@ -328,7 +336,7 @@ export interface Experiment {
   __typename?: 'Experiment';
   _id: Scalars['String'];
   codeId: Scalars['String'];
-  owners?: Maybe<Array<Scalars['String']>>;
+  owners?: Maybe<Array<User>>;
   tags?: Maybe<Array<Scalars['String']>>;
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
@@ -734,9 +742,13 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
 }>;
 
-export type AuthDirectiveArgs = {   role?: Maybe<Role>; };
+export type AuthDirectiveArgs = {   admin?: Maybe<Scalars['Boolean']>; };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type AdminDirectiveArgs = {  };
+
+export type AdminDirectiveResolver<Result, Parent, ContextType = any, Args = AdminDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type UnionDirectiveArgs = {   discriminatorField?: Maybe<Scalars['String']>;
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>; };
@@ -811,6 +823,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   appendMeasurementComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationAppendMeasurementComponentArgs, 'componentId' | 'measurementId'>>;
   appendSampleComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationAppendSampleComponentArgs, 'componentId' | 'sampleId'>>;
   appendSampleMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationAppendSampleMeasurementArgs, 'measurementId' | 'sampleId'>>;
+  appendUserGroup?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAppendUserGroupArgs, '_id' | 'group'>>;
   createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'component'>>;
   createExperiment?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationCreateExperimentArgs, 'experiment'>>;
   createFile?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationCreateFileArgs, 'file'>>;
@@ -853,7 +866,7 @@ export type StatusResolvers<ContextType = any, ParentType extends ResolversParen
 export type ExperimentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Experiment'] = ResolversParentTypes['Experiment']> = ResolversObject<{
   _id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   codeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  owners?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  owners?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1006,6 +1019,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
 export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = ResolversObject<{
   auth?: AuthDirectiveResolver<any, any, ContextType>;
+  admin?: AdminDirectiveResolver<any, any, ContextType>;
   union?: UnionDirectiveResolver<any, any, ContextType>;
   abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
   entity?: EntityDirectiveResolver<any, any, ContextType>;
@@ -1040,7 +1054,7 @@ export type StatusDbObject = {
 export type ExperimentDbObject = {
   _id: ObjectID,
   codeId: string,
-  owners?: Maybe<Array<string>>,
+  owners?: Maybe<Array<UserDbObject['_id']>>,
   tags?: Maybe<Array<string>>,
   title: string,
   description?: Maybe<string>,
