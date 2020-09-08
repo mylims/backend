@@ -6,7 +6,7 @@ import { hashing, createToken } from '../utils/auth';
 
 export class User extends Base<UserType> {
   public constructor(connection: MongoClient) {
-    super(connection, 'mylims', 'kind');
+    super(connection, 'mylims', 'user');
   }
 
   public async signin(email: string, password: string) {
