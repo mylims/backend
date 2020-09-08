@@ -61,6 +61,14 @@ export const experimentResolver: Resolvers<Context> = {
     components({ _id }, _, { models: { component } }) {
       return component.findByParentId(_id);
     },
+    async owners({ owners }, _, { models: { user } }) {
+      if (owners) {
+        const users = await Promise.all(owners.map((id) => user.findById(id)));
+        return users.filter(notEmpty);
+      } else {
+        return [];
+      }
+    },
   },
 
   Mutation: {
