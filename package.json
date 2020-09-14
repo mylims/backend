@@ -47,7 +47,8 @@
     "semi": true,
     "singleQuote": true,
     "tabWidth": 2,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "endOfLine": "auto"
   },
   "dependencies": {
     "@graphql-codegen/typescript-mongodb": "1.15.3",

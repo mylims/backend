@@ -56,10 +56,11 @@ export class Base<Model extends WithId> {
    * @param id - MongoDB unique id
    */
   public async findById(
-    id: string | Model | null | undefined,
+    id: string | Model | ObjectID | null | undefined,
   ): Promise<Model | null> {
     if (id) {
-      const _id = typeof id === 'string' ? id : id._id;
+      const _id =
+        typeof id === 'string' || id instanceof ObjectID ? id : id._id;
       return this.db.findOne({ _id: new ObjectID(_id) });
     } else {
       return Promise.resolve(null);
