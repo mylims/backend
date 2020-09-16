@@ -303,6 +303,7 @@ export interface File {
   mimetype: Scalars['String'];
   creationDate: Scalars['String'];
   signedUrl: Scalars['String'];
+  parent?: Maybe<Scalars['String']>;
 }
 
 export interface FileInput {
@@ -781,6 +782,7 @@ export type FileResolvers<ContextType = any, ParentType extends ResolversParentT
   mimetype?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   creationDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   signedUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -952,7 +954,7 @@ export type MeasurementDbObject = {
   _id: ObjectID,
   title: string,
   description?: Maybe<string>,
-  status?: Maybe<Array<Status>>,
+  status?: Maybe<Array<StatusDbObject>>,
   content?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
   attachement?: Maybe<Array<FileDbObject['_id']>>,
   sample?: Maybe<string>,

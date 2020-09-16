@@ -42,7 +42,5 @@ export const projectSchema = gql`
   extend type Mutation {
     createProject(project: ProjectInput!): Project
     updateProject(_id: String!, project: ProjectInput!): Project
-    appendProjectInput(sampleId: String!, projectId: String!): Project
-    appendProjectOutput(sampleId: String!, projectId: String!): Project
   }
 `;

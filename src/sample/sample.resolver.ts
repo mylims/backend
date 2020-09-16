@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { Context } from '../context';
 import { Resolvers, SampleDbObject } from '../generated/graphql';
 import { randomId } from '../utils/fake';
+import { notEmpty } from '../utils/resolvers';
 
 export const sampleResolver: Resolvers<Context> = {
   Query: {
@@ -15,21 +16,34 @@ export const sampleResolver: Resolvers<Context> = {
   },
 
   Sample: {
-    components: ({ _id }, _, { models: { component } }) => {
-      return component.findByParentId(_id);
+    async attachements({ attachements }, _, { models: { file } }) {
+      if (attachements) {
+        const promSamples = attachements.map((id) => file.findById(id));
+        const files = await Promise.all(promSamples);
+        return files.filter(notEmpty);
+      } else {
+        return null;
+      }
     },
-    measurements: ({ _id }, _, { models: { measurement } }) => {
+    measurements({ _id }, _, { models: { measurement } }) {
       return measurement.findByParentId(_id);
     },
   },
 
   Mutation: {
     async createSample(_, { sample }, { models }) {
+      const { kind, date, user } = sample.status || {};
       const created: Omit<SampleDbObject, '_id'> = {
         ...sample,
         title: sample.title || '',
         codeId: randomId(16),
-        status: sample.status ? [sample.status] : null,
+        status: sample.status && [
+          {
+            kind: kind || '',
+            date: date || new Date().toString(),
+            user: typeof user === 'string' ? new ObjectId(user) : user,
+          },
+        ],
       };
       const inserted = await models.sample.insertOne(created);
       return inserted.result && inserted.ops[0];
@@ -48,14 +62,14 @@ export const sampleResolver: Resolvers<Context> = {
         return value;
       }
     },
-    async appendSampleComponent(_, { componentId, sampleId }, { models }) {
-      const component = await models.component.findById(componentId);
-      if (!component) throw Error(`Component ${componentId} doesn't exist`);
+    async appendSampleAttachment(_, { fileId, sampleId }, { models }) {
+      const file = await models.file.findById(fileId);
+      if (!file) throw Error(`Attachment ${fileId} doesn't exist`);
 
       const sample = await models.sample.findById(sampleId);
       if (!sample) throw Error(`Sample ${sampleId} doesn't exist`);
 
-      const { value } = await models.component.updateOne(componentId, {
+      const { value } = await models.file.updateOne(fileId, {
         parent: new ObjectId(sampleId),
       });
       return value || null;

@@ -5,7 +5,7 @@ export const measurementSchema = gql`
     _id: String! @id
     title: String! @column
     description: String @column
-    status: [Status!] @column
+    status: [Status!] @embedded
     content: JSON @column
     attachement: [File!] @link
     sample: String @column
