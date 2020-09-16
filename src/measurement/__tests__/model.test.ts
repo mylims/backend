@@ -13,8 +13,6 @@ const measurementTest: MeasurementDbObject = {
   title: 'test',
   description: 'test description',
   status: [{ kind: 'test', date: new Date().toString() }],
-  startTime: new Date().toString(),
-  endTime: new Date().toString(),
   content: { test: true },
 };
 
