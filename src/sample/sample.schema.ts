@@ -35,11 +35,12 @@ export const sampleSchema = gql`
     description: String @column
     comments: [SampleComment!] @embedded
     summary: [SampleSummary!] @embedded
-    components: [Component!] @link
+    attachements: [File!] @link
     measurements: [Measurement!] @link
   }
 
   input SampleInput {
+    codeId: String
     title: String
     status: StatusInput
     description: String
@@ -48,8 +49,10 @@ export const sampleSchema = gql`
   }
 
   input SampleFilters {
+    codeId: String
     title: String
     status: String
+    statusDate: String
     description: String
     comments: String
     summary: String
@@ -68,7 +71,7 @@ export const sampleSchema = gql`
   extend type Mutation {
     createSample(sample: SampleInput!): Sample
     updateSample(_id: String!, sample: SampleInput!): Sample
-    appendSampleComponent(componentId: String!, sampleId: String!): Component
+    appendSampleAttachment(fileId: String!, sampleId: String!): File
     appendSampleMeasurement(
       measurementId: String!
       sampleId: String!

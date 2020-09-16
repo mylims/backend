@@ -6,7 +6,6 @@ import {
 import { MongoClient } from 'mongodb';
 
 import { Models } from '../../context';
-import { Kind as KindType } from '../../generated/graphql';
 import { createServer } from '../../index';
 import { randomId } from '../../utils/fake';
 
@@ -26,43 +25,42 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  const { kind } = models;
-  await kind.drop();
+  await models.experiment.drop();
   return db.close();
 });
 
 const GET_ID = gql`
-  query kind($id: String!) {
-    kind(_id: $id) {
+  query experiment($id: String!) {
+    experiment(_id: $id) {
       _id
-      name
+      title
     }
   }
 `;
 
 const CREATE = gql`
-  mutation createKind($kind: KindInput!) {
-    createKind(kind: $kind) {
+  mutation createExperiment($experiment: ExperimentInput!) {
+    createExperiment(experiment: $experiment) {
       _id
-      name
+      title
     }
   }
 `;
 
 const UPDATE = gql`
-  mutation updateKind($id: String!, $kind: KindInput!) {
-    updateKind(_id: $id, kind: $kind) {
+  mutation updateExperiment($id: String!, $experiment: ExperimentInput!) {
+    updateExperiment(_id: $id, experiment: $experiment) {
       _id
-      name
+      description
     }
   }
 `;
 
-describe('Kind single searchers', () => {
+describe('Experiment single searchers', () => {
   it('Insertion', async () => {
     const res1 = await query({
       query: GET_ID,
-      variables: { id: randomId(24) },
+      variables: { id: randomId(12) },
     });
 
     // check no errors in the query
@@ -70,39 +68,35 @@ describe('Kind single searchers', () => {
     expect(res1.data).not.toBeUndefined();
     expect(res1.data).not.toBeNull();
     const data1 = res1.data || {};
-    expect(data1.kind).not.toBeUndefined();
-    expect(data1.kind).toBeNull();
+    expect(data1.experiment).not.toBeUndefined();
+    expect(data1.experiment).toBeNull();
 
-    // Insert kind
-    const kind: Partial<KindType> = {
-      name: 'test',
-      schema: [{ name: 'field', type: 'string', required: true }],
-    };
+    // Insert experiment
     const create = await mutate({
       mutation: CREATE,
-      variables: { kind },
+      variables: { experiment: { title: 'test' } },
     });
     expect(create.errors).toBeUndefined();
     expect(create.data).not.toBeUndefined();
     expect(create.data).not.toBeNull();
     const data2 = create.data || {};
-    expect(data2.createKind).not.toBeUndefined();
-    expect(data2.createKind).toHaveProperty('_id');
-    expect(data2.createKind.name).toBe('test');
+    expect(data2.createExperiment).not.toBeUndefined();
+    expect(data2.createExperiment).toHaveProperty('_id');
+    expect(data2.createExperiment.title).toBe('test');
 
-    // Update kind
-    const id = data2.createKind._id;
-    const name = 'test update';
+    // Update experiment
+    const id = data2.createExperiment._id;
+    const description = 'test update';
     const update = await mutate({
       mutation: UPDATE,
-      variables: { id, kind: { name } },
+      variables: { id, experiment: { description } },
     });
     expect(update.errors).toBeUndefined();
     expect(update.data).not.toBeUndefined();
     expect(update.data).not.toBeNull();
     const data3 = update.data || {};
-    expect(data3.updateKind).not.toBeUndefined();
-    expect(data3.updateKind._id).toBe(id);
-    expect(data3.updateKind.name).toBe(name);
+    expect(data3.updateExperiment).not.toBeUndefined();
+    expect(data3.updateExperiment._id).toBe(id);
+    expect(data3.updateExperiment.description).toBe(description);
   });
 });
