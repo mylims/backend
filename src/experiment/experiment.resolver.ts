@@ -58,28 +58,22 @@ export const experimentResolver: Resolvers<Context> = {
     output({ output }, _, { models: { sample } }) {
       return fetchSamples(output, sample);
     },
-    components({ _id }, _, { models: { component } }) {
-      return component.findByParentId(_id);
-    },
-    async owners({ owners }, _, { models: { user } }) {
-      if (owners) {
-        const users = await Promise.all(owners.map((id) => user.findById(id)));
-        return users.filter(notEmpty);
-      } else {
-        return [];
-      }
-    },
   },
 
   Mutation: {
     async createExperiment(_, { experiment }, { models }) {
+      const { kind, date, user } = experiment.status || {};
       const created: Omit<ExperimentDbObject, '_id'> = {
         ...experiment,
+        codeId: experiment.codeId || randomId(16),
         title: experiment.title || '',
-        codeId: randomId(16),
-        creationDate: new Date().toString(),
-        status: experiment.status ? [experiment.status] : null,
-        owners: experiment.owners?.map((id) => new ObjectId(id)),
+        status: experiment.status && [
+          {
+            kind: kind || '',
+            date: date || new Date().toString(),
+            user: typeof user === 'string' ? new ObjectId(user) : user,
+          },
+        ],
       };
       const inserted = await models.experiment.insertOne(created);
       return inserted.result && inserted.ops[0];
@@ -102,27 +96,6 @@ export const experimentResolver: Resolvers<Context> = {
     },
     appendExperimentOutput(_, { sampleId, experimentId }, { models }) {
       return appendSample(models, sampleId, experimentId, 'output');
-    },
-
-    async appendExperimentComponent(
-      _,
-      { componentId, experimentId },
-      { models },
-    ) {
-      const component = await models.component.findById(componentId);
-      if (!component) {
-        throw Error(`Component ${componentId} doesn't exist`);
-      }
-
-      const experiment = await models.experiment.findById(experimentId);
-      if (!experiment) {
-        throw Error(`Experiment ${experimentId} doesn't exist`);
-      }
-
-      const { value } = await models.component.updateOne(componentId, {
-        parent: new ObjectId(experimentId),
-      });
-      return value || null;
     },
   },
 };
