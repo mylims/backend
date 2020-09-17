@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 
 import { Context } from '../context';
 import { Resolvers, MeasurementDbObject } from '../generated/graphql';
+import { notEmpty } from '../utils/resolvers';
 
 export const measurementResolver: Resolvers<Context> = {
   Query: {
@@ -14,17 +15,30 @@ export const measurementResolver: Resolvers<Context> = {
   },
 
   Measurement: {
-    components: ({ _id }, _, { models: { component } }) => {
-      return component.findByParentId(_id);
+    async attachement({ attachement }, _, { models: { file } }) {
+      if (attachement) {
+        const promFiles = attachement.map((id) => file.findById(id));
+        const files = await Promise.all(promFiles);
+        return files.filter(notEmpty);
+      } else {
+        return null;
+      }
     },
   },
 
   Mutation: {
     async createMeasurement(_, { measurement }, { models }) {
+      const { kind, date, user } = measurement.status || {};
       const created: Omit<MeasurementDbObject, '_id'> = {
         ...measurement,
         title: measurement.title || '',
-        status: measurement.status ? [measurement.status] : null,
+        status: measurement.status && [
+          {
+            kind: kind || '',
+            date: date || new Date().toString(),
+            user: typeof user === 'string' ? new ObjectId(user) : user,
+          },
+        ],
       };
       const inserted = await models.measurement.insertOne(created);
       return inserted.result && inserted.ops[0];
@@ -42,14 +56,14 @@ export const measurementResolver: Resolvers<Context> = {
         return value;
       }
     },
-    appendMeasurementComponent: async (
+    async appendMeasurementAttachment(
       _,
-      { componentId, measurementId },
+      { fileId, measurementId },
       { models },
-    ) => {
-      const component = await models.component.findById(componentId);
-      if (!component) {
-        throw new Error(`Component ${componentId} doesn't exist`);
+    ) {
+      const file = await models.file.findById(fileId);
+      if (!file) {
+        throw new Error(`File ${fileId} doesn't exist`);
       }
 
       const measurement = await models.measurement.findById(measurementId);
@@ -57,7 +71,7 @@ export const measurementResolver: Resolvers<Context> = {
         throw new Error(`Measurement ${measurementId} doesn't exist`);
       }
 
-      const { value } = await models.component.updateOne(componentId, {
+      const { value } = await models.file.updateOne(fileId, {
         parent: new ObjectId(measurementId),
       });
       return value || null;

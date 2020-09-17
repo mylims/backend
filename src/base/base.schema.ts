@@ -7,6 +7,18 @@ export const baseSchema = gql`
   # Allows the use of JSONs
   scalar JSON
 
+  type Status @entity(embedded: true) {
+    kind: String! @column
+    date: String! @column
+    user: User @link
+  }
+
+  input StatusInput {
+    kind: String!
+    date: String
+    user: String
+  }
+
   interface Pagination {
     totalCount: Int!
   }

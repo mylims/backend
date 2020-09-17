@@ -11,11 +11,8 @@ const id = randomId(24);
 const experimentTest: ExperimentDbObject = {
   _id: new ObjectID(id),
   codeId,
-  owners: [new ObjectID(randomId(24))],
-  tags: ['test'],
   title: 'test',
   description: 'test description',
-  creationDate: new Date().toString(),
   status: [{ kind: 'test', date: new Date().toString() }],
   meta: { test: true },
 };

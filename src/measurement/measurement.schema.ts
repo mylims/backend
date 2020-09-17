@@ -3,22 +3,18 @@ import { gql } from 'apollo-server-fastify';
 export const measurementSchema = gql`
   type Measurement @entity {
     _id: String! @id
-    sample: String @column
     title: String! @column
     description: String @column
-    status: [Status!] @column
-    startTime: String @column
-    endTime: String @column
+    status: [Status!] @embedded
     content: JSON @column
-    components: [Component!] @link
+    attachement: [File!] @link
+    sample: String @column
   }
 
   input MeasurementInput {
     title: String
     description: String
     status: StatusInput
-    startTime: String
-    endTime: String
     content: JSON
   }
 
@@ -26,8 +22,7 @@ export const measurementSchema = gql`
     title: String
     description: String
     status: String
-    startTime: String
-    endTime: String
+    statusDate: String
   }
 
   type MeasurementPage implements Pagination {
@@ -43,9 +38,6 @@ export const measurementSchema = gql`
   extend type Mutation {
     createMeasurement(measurement: MeasurementInput!): Measurement
     updateMeasurement(_id: String!, measurement: MeasurementInput!): Measurement
-    appendMeasurementComponent(
-      componentId: String!
-      measurementId: String!
-    ): Component
+    appendMeasurementAttachment(fileId: String!, measurementId: String!): File
   }
 `;

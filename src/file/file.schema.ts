@@ -8,6 +8,7 @@ export const fileSchema = gql`
     mimetype: String! @column
     creationDate: String! @column
     signedUrl: String!
+    parent: String
   }
 
   input FileInput {
