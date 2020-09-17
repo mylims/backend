@@ -135,8 +135,6 @@ export interface Mutation {
   appendExperimentInput?: Maybe<Experiment>;
   appendExperimentOutput?: Maybe<Experiment>;
   appendMeasurementAttachment?: Maybe<File>;
-  appendProjectInput?: Maybe<Project>;
-  appendProjectOutput?: Maybe<Project>;
   appendSampleAttachment?: Maybe<File>;
   appendSampleMeasurement?: Maybe<Measurement>;
   appendUserGroup: User;
@@ -169,18 +167,6 @@ export interface MutationAppendExperimentOutputArgs {
 export interface MutationAppendMeasurementAttachmentArgs {
   fileId: Scalars['String'];
   measurementId: Scalars['String'];
-}
-
-
-export interface MutationAppendProjectInputArgs {
-  sampleId: Scalars['String'];
-  projectId: Scalars['String'];
-}
-
-
-export interface MutationAppendProjectOutputArgs {
-  sampleId: Scalars['String'];
-  projectId: Scalars['String'];
 }
 
 
@@ -739,8 +725,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   appendExperimentInput?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationAppendExperimentInputArgs, 'sampleId' | 'experimentId'>>;
   appendExperimentOutput?: Resolver<Maybe<ResolversTypes['Experiment']>, ParentType, ContextType, RequireFields<MutationAppendExperimentOutputArgs, 'sampleId' | 'experimentId'>>;
   appendMeasurementAttachment?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationAppendMeasurementAttachmentArgs, 'fileId' | 'measurementId'>>;
-  appendProjectInput?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationAppendProjectInputArgs, 'sampleId' | 'projectId'>>;
-  appendProjectOutput?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationAppendProjectOutputArgs, 'sampleId' | 'projectId'>>;
   appendSampleAttachment?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationAppendSampleAttachmentArgs, 'fileId' | 'sampleId'>>;
   appendSampleMeasurement?: Resolver<Maybe<ResolversTypes['Measurement']>, ParentType, ContextType, RequireFields<MutationAppendSampleMeasurementArgs, 'measurementId' | 'sampleId'>>;
   appendUserGroup?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAppendUserGroupArgs, '_id' | 'group'>>;
