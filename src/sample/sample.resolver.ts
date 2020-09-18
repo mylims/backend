@@ -35,8 +35,8 @@ export const sampleResolver: Resolvers<Context> = {
       const { kind, date, user } = sample.status || {};
       const created: Omit<SampleDbObject, '_id'> = {
         ...sample,
+        codeId: sample.codeId || randomId(16),
         title: sample.title || '',
-        codeId: randomId(16),
         status: sample.status && [
           {
             kind: kind || '',
