@@ -35,7 +35,7 @@ export const sampleSchema = gql`
     description: String @column
     comments: [SampleComment!] @embedded
     summary: [SampleSummary!] @embedded
-    attachements: [File!] @link
+    attachments: [File!] @link
     measurements: [Measurement!] @link
   }
 

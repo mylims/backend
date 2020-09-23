@@ -16,9 +16,9 @@ export const sampleResolver: Resolvers<Context> = {
   },
 
   Sample: {
-    async attachements({ attachements }, _, { models: { file } }) {
-      if (attachements) {
-        const promSamples = attachements.map((id) => file.findById(id));
+    async attachments({ attachments }, _, { models: { file } }) {
+      if (attachments) {
+        const promSamples = attachments.map((id) => file.findById(id));
         const files = await Promise.all(promSamples);
         return files.filter(notEmpty);
       } else {
