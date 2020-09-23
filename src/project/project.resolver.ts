@@ -12,6 +12,10 @@ export const projectResolver: Resolvers<Context> = {
     projects(_, { page, filters }, { models: { project } }) {
       return project.findPaginated(page, filters);
     },
+    projectsByOwner(_, { ownerId }, { models: { project } }) {
+      const owners = new ObjectId(ownerId);
+      return project.findMany({ owners });
+    },
   },
 
   Project: {

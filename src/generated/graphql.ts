@@ -50,6 +50,7 @@ export interface Query {
   measurements: MeasurementPage;
   project?: Maybe<Project>;
   projects?: Maybe<ProjectPage>;
+  projectsByOwner?: Maybe<Array<Project>>;
   sample?: Maybe<Sample>;
   samples: SamplePage;
   signin?: Maybe<AuthUser>;
@@ -99,6 +100,11 @@ export interface QueryProjectArgs {
 export interface QueryProjectsArgs {
   page: Scalars['Int'];
   filters: ProjectFilters;
+}
+
+
+export interface QueryProjectsByOwnerArgs {
+  ownerId: Scalars['String'];
 }
 
 
@@ -717,6 +723,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   measurements?: Resolver<ResolversTypes['MeasurementPage'], ParentType, ContextType, RequireFields<QueryMeasurementsArgs, 'page' | 'filters'>>;
   project?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<QueryProjectArgs, '_id'>>;
   projects?: Resolver<Maybe<ResolversTypes['ProjectPage']>, ParentType, ContextType, RequireFields<QueryProjectsArgs, 'page' | 'filters'>>;
+  projectsByOwner?: Resolver<Maybe<Array<ResolversTypes['Project']>>, ParentType, ContextType, RequireFields<QueryProjectsByOwnerArgs, 'ownerId'>>;
   sample?: Resolver<Maybe<ResolversTypes['Sample']>, ParentType, ContextType, RequireFields<QuerySampleArgs, '_id'>>;
   samples?: Resolver<ResolversTypes['SamplePage'], ParentType, ContextType, RequireFields<QuerySamplesArgs, 'page' | 'filters'>>;
   signin?: Resolver<Maybe<ResolversTypes['AuthUser']>, ParentType, ContextType, RequireFields<QuerySigninArgs, 'email' | 'password'>>;

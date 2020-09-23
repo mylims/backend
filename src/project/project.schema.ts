@@ -40,6 +40,7 @@ export const projectSchema = gql`
   extend type Query {
     project(_id: String!): Project
     projects(page: Int!, filters: ProjectFilters!): ProjectPage
+    projectsByOwner(ownerId: String!): [Project!]
   }
 
   extend type Mutation {
