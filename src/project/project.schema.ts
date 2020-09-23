@@ -9,6 +9,9 @@ export const projectSchema = gql`
     tags: [String!] @column
     status: [Status!] @embedded
     meta: JSON @column
+    view: JSON @column
+    experiments: [Experiment!] @link
+    samples: [Sample!] @link
   }
 
   input ProjectInput {

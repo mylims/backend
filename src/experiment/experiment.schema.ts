@@ -10,6 +10,7 @@ export const experimentSchema = gql`
     meta: JSON @column
     input: [Sample!] @link
     output: [Sample!] @link
+    attachments: [File!] @link
   }
 
   input ExperimentInput {

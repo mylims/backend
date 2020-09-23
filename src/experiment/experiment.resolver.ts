@@ -40,6 +40,9 @@ export const experimentResolver: Resolvers<Context> = {
     output({ output }, _, { models: { sample } }) {
       return bulkFindById(output, sample);
     },
+    attachments({ attachments }, _, { models: { file } }) {
+      return bulkFindById(attachments, file);
+    },
   },
 
   Mutation: {

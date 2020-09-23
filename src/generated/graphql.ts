@@ -257,6 +257,7 @@ export interface Experiment {
   meta?: Maybe<Scalars['JSON']>;
   input?: Maybe<Array<Sample>>;
   output?: Maybe<Array<Sample>>;
+  attachments?: Maybe<Array<File>>;
 }
 
 export interface ExperimentInput {
@@ -343,6 +344,9 @@ export interface Project {
   tags?: Maybe<Array<Scalars['String']>>;
   status?: Maybe<Array<Status>>;
   meta?: Maybe<Scalars['JSON']>;
+  view?: Maybe<Scalars['JSON']>;
+  experiments?: Maybe<Array<Experiment>>;
+  samples?: Maybe<Array<Sample>>;
 }
 
 export interface ProjectInput {
@@ -406,7 +410,7 @@ export interface Sample {
   description?: Maybe<Scalars['String']>;
   comments?: Maybe<Array<SampleComment>>;
   summary?: Maybe<Array<SampleSummary>>;
-  attachements?: Maybe<Array<File>>;
+  attachments?: Maybe<Array<File>>;
   measurements?: Maybe<Array<Measurement>>;
 }
 
@@ -750,6 +754,7 @@ export type ExperimentResolvers<ContextType = any, ParentType extends ResolversP
   meta?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   input?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
   output?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
+  attachments?: Resolver<Maybe<Array<ResolversTypes['File']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -795,6 +800,9 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   status?: Resolver<Maybe<Array<ResolversTypes['Status']>>, ParentType, ContextType>;
   meta?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  view?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  experiments?: Resolver<Maybe<Array<ResolversTypes['Experiment']>>, ParentType, ContextType>;
+  samples?: Resolver<Maybe<Array<ResolversTypes['Sample']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -827,7 +835,7 @@ export type SampleResolvers<ContextType = any, ParentType extends ResolversParen
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   comments?: Resolver<Maybe<Array<ResolversTypes['SampleComment']>>, ParentType, ContextType>;
   summary?: Resolver<Maybe<Array<ResolversTypes['SampleSummary']>>, ParentType, ContextType>;
-  attachements?: Resolver<Maybe<Array<ResolversTypes['File']>>, ParentType, ContextType>;
+  attachments?: Resolver<Maybe<Array<ResolversTypes['File']>>, ParentType, ContextType>;
   measurements?: Resolver<Maybe<Array<ResolversTypes['Measurement']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
@@ -924,6 +932,7 @@ export type ExperimentDbObject = {
   meta?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
   input?: Maybe<Array<SampleDbObject['_id']>>,
   output?: Maybe<Array<SampleDbObject['_id']>>,
+  attachments?: Maybe<Array<FileDbObject['_id']>>,
 };
 
 export type FileDbObject = {
@@ -952,6 +961,9 @@ export type ProjectDbObject = {
   tags?: Maybe<Array<string>>,
   status?: Maybe<Array<StatusDbObject>>,
   meta?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+  view?: Maybe<Record<string, unknown> | Record<string, unknown>[]>,
+  experiments?: Maybe<Array<ExperimentDbObject['_id']>>,
+  samples?: Maybe<Array<SampleDbObject['_id']>>,
 };
 
 export type SampleCommentDbObject = {
@@ -975,7 +987,7 @@ export type SampleDbObject = {
   description?: Maybe<string>,
   comments?: Maybe<Array<SampleCommentDbObject>>,
   summary?: Maybe<Array<SampleSummaryDbObject>>,
-  attachements?: Maybe<Array<FileDbObject['_id']>>,
+  attachments?: Maybe<Array<FileDbObject['_id']>>,
   measurements?: Maybe<Array<MeasurementDbObject['_id']>>,
 };
 
