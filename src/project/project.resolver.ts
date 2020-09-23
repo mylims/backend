@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 
 import { Context } from '../context';
 import { Resolvers, ProjectDbObject } from '../generated/graphql';
-import { notEmpty } from '../utils/resolvers';
+import { bulkFindById } from '../utils/resolvers';
 
 export const projectResolver: Resolvers<Context> = {
   Query: {
@@ -15,13 +15,14 @@ export const projectResolver: Resolvers<Context> = {
   },
 
   Project: {
-    async owners({ owners }, _, { models: { user } }) {
-      if (owners) {
-        const users = await Promise.all(owners.map((id) => user.findById(id)));
-        return users.filter(notEmpty);
-      } else {
-        return [];
-      }
+    owners({ owners }, _, { models: { user } }) {
+      return bulkFindById(owners, user);
+    },
+    samples({ samples }, _, { models: { sample } }) {
+      return bulkFindById(samples, sample);
+    },
+    experiments({ experiments }, _, { models: { experiment } }) {
+      return bulkFindById(experiments, experiment);
     },
   },
 

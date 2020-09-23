@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { Context } from '../context';
 import { Resolvers, SampleDbObject } from '../generated/graphql';
 import { randomId } from '../utils/fake';
-import { notEmpty } from '../utils/resolvers';
+import { bulkFindById } from '../utils/resolvers';
 
 export const sampleResolver: Resolvers<Context> = {
   Query: {
@@ -16,14 +16,8 @@ export const sampleResolver: Resolvers<Context> = {
   },
 
   Sample: {
-    async attachments({ attachments }, _, { models: { file } }) {
-      if (attachments) {
-        const promSamples = attachments.map((id) => file.findById(id));
-        const files = await Promise.all(promSamples);
-        return files.filter(notEmpty);
-      } else {
-        return null;
-      }
+    attachments({ attachments }, _, { models: { file } }) {
+      return bulkFindById(attachments, file);
     },
     measurements({ _id }, _, { models: { measurement } }) {
       return measurement.findByParentId(_id);

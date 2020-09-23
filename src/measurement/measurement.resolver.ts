@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 
 import { Context } from '../context';
 import { Resolvers, MeasurementDbObject } from '../generated/graphql';
-import { notEmpty } from '../utils/resolvers';
+import { bulkFindById } from '../utils/resolvers';
 
 export const measurementResolver: Resolvers<Context> = {
   Query: {
@@ -15,14 +15,8 @@ export const measurementResolver: Resolvers<Context> = {
   },
 
   Measurement: {
-    async attachement({ attachement }, _, { models: { file } }) {
-      if (attachement) {
-        const promFiles = attachement.map((id) => file.findById(id));
-        const files = await Promise.all(promFiles);
-        return files.filter(notEmpty);
-      } else {
-        return null;
-      }
+    attachement({ attachement }, _, { models: { file } }) {
+      return bulkFindById(attachement, file);
     },
   },
 

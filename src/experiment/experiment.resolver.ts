@@ -1,27 +1,9 @@
 import { ObjectId } from 'mongodb';
 
 import { Context, Models } from '../context';
-import {
-  Resolvers,
-  Sample as SampleType,
-  ExperimentDbObject,
-} from '../generated/graphql';
-import { Sample } from '../sample/sample.model';
+import { Resolvers, ExperimentDbObject } from '../generated/graphql';
 import { randomId } from '../utils/fake';
-import { notEmpty } from '../utils/resolvers';
-
-async function fetchSamples(
-  list: SampleType[] | null | undefined,
-  sample: Sample,
-) {
-  if (list) {
-    const promSamples = list.map((id) => sample.findById(id));
-    const samples = await Promise.all(promSamples);
-    return samples.filter(notEmpty);
-  } else {
-    return null;
-  }
-}
+import { bulkFindById } from '../utils/resolvers';
 
 async function appendSample(
   models: Models,
@@ -53,10 +35,10 @@ export const experimentResolver: Resolvers<Context> = {
 
   Experiment: {
     input({ input }, _, { models: { sample } }) {
-      return fetchSamples(input, sample);
+      return bulkFindById(input, sample);
     },
     output({ output }, _, { models: { sample } }) {
-      return fetchSamples(output, sample);
+      return bulkFindById(output, sample);
     },
   },
 
